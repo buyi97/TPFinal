@@ -51,7 +51,7 @@ status_t  proc_argv(int argc, char* argv[],config_t* config){
 						boolprot=true;
 					}
 					else if ( strcmp(argv[i+1], STR_UBX ) ) == 0 ){
-						config->protocol = P_NMEA;
+						config->protocol = P_UBX;
 						boolprot=true;
 					}						
 				}
