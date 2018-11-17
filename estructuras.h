@@ -55,6 +55,7 @@ typedef struct gga{
 	float sep_geoide;
 }gga_t;
 
+/*Estructura para ZDA, con los datos a guardar*/
 typedef struct zda{
 	struct fecha_t fecha;
 	struct hora_t hora;
@@ -62,15 +63,44 @@ typedef struct zda{
 	int mm_utc;
 }zda_t;
 
+/*Estructura para RMC, con los datos a guardar*/
 typedef struct rmc{
+	struct fecha_t fecha;
 	struct hora_t hora;
+	bool status;
 	double latitud;
 	double longitud;
-	calidad_t calidad;
-	unsigned int cant_satelites;
-	float hdop;
-	float elevacion;
-	float sep_geoide;
+	double velocidad;
+	float ang_seg;
+	float desv_mag;
 }rmc_t;
 
+/*Tipo para el id de las sentencia NMEA*/
+typedef enum nmea_id{
+	RMC,
+	ZDA,
+	GGA,
+}nmea_id
 
+/*Estructura NMEA, con los datos a guardar (contiene una union de rmc_t, zda_t, y gga_t porque pueden venir cualquiera de los 3)*/
+typedef struct nmea{
+	nmea_id	id;
+	union sentencia {
+   		rmc_t rmc;
+   		zda_t zda;
+   		gga_t gga;
+	}sentencia;  
+}nmea_t
+
+/*Estructura para GPX, con los datos a guardar*/
+typedef struct gpx{
+	struct metadata_t{
+		char nombre[MAX_NOMBRE+1];
+		fecha_t fecha;
+		hora_t hora;
+	}metadata_t;
+	hora_t hora;
+	double latitud;
+	double longitud;
+	float elevacion;
+}gpx_t;
