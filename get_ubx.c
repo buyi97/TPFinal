@@ -63,12 +63,12 @@ status_t get_ubx(ubx_t *ubx, bool *eof, FILE *fin){
 		ubx->largo |= size_t_aux; /*largo cargado a la estructura*/
 
 		/*asigna memoria para *payload */
-		ubx->payload = (uchar *) malloc(((ubx->largo)+1)*sizeof(uchar));
+		ubx->payload = (uchar *) malloc((ubx->largo + 1)*sizeof(uchar));
 		if(!ubx->payload){
 			return ST_ERR_NO_MEMORIA;	
 		}
 
-		ubx->payload[(ubx->largo)] = '\0';
+		ubx->payload[ubx->largo] = '\0';
 		
 		/*carga payload*/
 		if(fread(ubx->payload, 1, ubx->largo, fin) != ubx->largo){
@@ -76,10 +76,10 @@ status_t get_ubx(ubx_t *ubx, bool *eof, FILE *fin){
 			}
 
 		/*carga el checksum*/
-		if(fread(&ubx->ck_a, 1, ubx->largo, fin) != ubx->largo){
+		if(fread(&ubx->ck_a, 1, 1, fin) != 1){
    				return fread_err(eof, fin);
 			}
-		if(fread(&ubx->ck_b, 1, ubx->largo, fin) != ubx->largo){
+		if(fread(&ubx->ck_b, 1, 1, fin) != 1){
    				return fread_err(eof, fin);
 			}
 	}
