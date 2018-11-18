@@ -45,7 +45,7 @@ typedef enum calidad_t{
 
 /*Estructura para GGA, con los datos a guardar*/
 typedef struct gga{
-	struct hora_t hora;
+	struct hora hora;
 	double latitud;
 	double longitud;
 	calidad_t calidad;
@@ -56,14 +56,14 @@ typedef struct gga{
 }gga_t;
 
 typedef struct zda{
-	struct fecha_t fecha;
-	struct hora_t hora;
+	struct fecha fecha;
+	struct hora hora;
 	int hh_utc;
 	int mm_utc;
 }zda_t;
 
 typedef struct rmc{
-	struct hora_t hora;
+	struct hora hora;
 	double latitud;
 	double longitud;
 	calidad_t calidad;
@@ -72,5 +72,15 @@ typedef struct rmc{
 	float elevacion;
 	float sep_geoide;
 }rmc_t;
+
+typedef struct ubx{
+	unsigned char clase;
+	unsigned char id;
+	size_t largo;
+	unsigned char *payload;
+	unsigned char ck_a;
+	unsigned char ck_b;
+}ubx_t;
+
 
 
