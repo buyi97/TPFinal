@@ -32,10 +32,10 @@ status_t proc_zda(nmea_t* nmea, char* cadena){
 		return ST_ERR_PUNT_NULL;
 	
 	if ( split_delim( cadena , cad_arr , NMEA_DELIM_CHAR ) < NMEA_DELIM_CANT_MIN )
-		return ST_ERR_ZDA_INVALIDA;
+		return ST_ERR_SENTENCIA_INVALIDA;
 
 	if ( ( st = str2hora( cad_arr[NMEA_ZDA_HORA_POS] , &nmea->zda.hora ) ) != ST_OK )
-		return ST_ERR_ZDA_INVALIDA;
+		return ST_ERR_SENTENCIA_INVALIDA;
 		/* FALTA TERMINAR */
 	
 }
