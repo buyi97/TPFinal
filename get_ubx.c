@@ -5,7 +5,7 @@
 #include "estructuras.h"
 
 #define SYNC_CHAR1 0xB5
-#define SYNC_CHAR2 0X62
+#define SYNC_CHAR2 0x62
 #define SHIFT_BYTE 8
 
 typedef unsigned char uchar; 
