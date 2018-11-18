@@ -1,3 +1,8 @@
+#ifndef STATUS__H
+#define STATUS__H
+
+#include "status.c"
+
 typedef enum status_t{ 
 			ST_OK, 
 			ST_ERR_DATO_INCOMP, 
@@ -12,3 +17,5 @@ typedef enum status_t{
 			ST_ERR_NO_OUTFILE,
 			ST_ERR_NO_LOGFILE
 }status_t;
+
+#endif
