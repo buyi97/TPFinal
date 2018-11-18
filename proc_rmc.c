@@ -6,7 +6,9 @@
 */
 
 #include "nmea.h"
-
+#include <string.h>
+#include "fecha.h"
+#include "geopos.h"
 /**
 * @brief Cargar en una estructura los datos de RMC a partir de una cadena.
 * @param Cadena RMC, estructura nmea;
