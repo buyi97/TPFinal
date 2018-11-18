@@ -18,7 +18,10 @@
 status_t get_nmea_id ( const char *cadena , nmea_id* id ) {
 
 	char * ptr2delim;
-
+	
+	if ( !cadena || !id )
+		return ST_ERR_PUNT_NULL;
+	
 	ptr2delim = strstr ( cadena, NMEA_DELIM_CHAR );
   
  /*  Se valida ptr2coma para el caso en que es nulo. */
