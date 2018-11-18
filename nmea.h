@@ -3,6 +3,14 @@
 
 #include "nmea.c"
 
+#define NMEA_DELIM_CHAR ','
+
+#define NMEA_ID_LEN 3
+
+#define NMEA_GGA_STR "GGA"
+#define NMEA_RMC_STR "RMC"
+#define NMEA_ZDA_STR "ZDA"
+
 /*Tipo de dato para la CALIDAD DEL FIX*/
 typedef enum calidad_t{ 
 	CAL_INVALIDO, 
