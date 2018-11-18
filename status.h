@@ -15,7 +15,8 @@ typedef enum status_t{
 			ST_ERR_NO_PROTOCOL,
 			ST_ERR_NO_INFILE,
 			ST_ERR_NO_OUTFILE,
-			ST_ERR_NO_LOGFILE
+			ST_ERR_NO_LOGFILE,
+			ST_ERR_SENTENCIA_INVALIDA,
 }status_t;
 
 #endif
