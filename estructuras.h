@@ -110,7 +110,7 @@ typedef struct gpx{
 struct lista{
 	size_t cant_max;
 	size_t cant_actual;
-	void* ptr;
+	gpx_list_t* ptr;
 };
 
 /*Estructura para la lista de GPX_T que vamos a armar*/
