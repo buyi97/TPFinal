@@ -7,26 +7,30 @@
 #define SYNC_CHAR1 0xB5
 #define SYNC_CHAR2 0x62
 #define SHIFT_BYTE 8
+#define LONGITUD_FIJA 6 /*campos de longitud fija incluyendo el checksum*/
+#define POS_LARGO 2
 
-typedef unsigned char uchar; 
+typedef unsigned char uchar;
 
-status_t get_ubx(ubx_t *ubx, bool *eof, FILE *fin);
+status_t readline_ubx(uchar **ubx, bool *eof, FILE *fin);
 status_t find_sync_chars_ubx(bool *eof, FILE *fin);
 status_t fread_err(bool *eof, FILE *fin);
 
 /*main para testear	
 int main (void){
-	ubx_t ubx;
+	uchar *ubx;
 	bool eof;
 
-	get_ubx(&ubx, &eof, stdin);
+	readline_ubx(&ubx, &eof, stdin);
 
 	return EXIT_SUCCESS;
 }*/
 
-status_t get_ubx(ubx_t *ubx, bool *eof, FILE *fin){
+/*lee una sentencia ubx del archivo */
+status_t readline_ubx(uchar **ubx, bool *eof, FILE *fin){
 	status_t st;
-	size_t size_t_aux = 0;
+	size_t largo= 0;
+	uchar * aux;
 	
 	/*punteros no nulos*/
 	if(!fin || !ubx	|| !eof)
@@ -38,51 +42,38 @@ status_t get_ubx(ubx_t *ubx, bool *eof, FILE *fin){
 	if((st = find_sync_chars_ubx(eof, fin)) != ST_OK)
 		return st;
 
-	/*carga los campos de la estructura*/
+	/*carga la sentencia ubx*/
 	if(!eof){
-
-		/*carga clase*/
-		if(fread(&ubx->clase, 1, 1, fin) != 1){
-   				return fread_err(eof, fin);
-			}
-
-		/*carga id*/
-		if(fread(&ubx->id, 1, 1, fin) != 1){
-   				return fread_err(eof, fin);
-			}
-
-		/*lee y convierte "largo" de little endian a size_t*/
-		ubx->largo = 0;
-		if(fread(&size_t_aux, 1, 1, fin) != 1){
-   				return fread_err(eof, fin);
-			} 
-		if(fread(&ubx->largo, 1, 1, fin) != 1){
-   				return fread_err(eof, fin);
-			}
-		ubx->largo <<= SHIFT_BYTE;
-		ubx->largo |= size_t_aux; /*largo cargado a la estructura*/
-
-		/*asigna memoria para *payload */
-		ubx->payload = (uchar *) malloc((ubx->largo + 1)*sizeof(uchar));
-		if(!ubx->payload){
-			return ST_ERR_NO_MEMORIA;	
+		/*asigna memoria inicial*/
+		*ubx = (uchar *) malloc(LONGITUD_FIJA*sizeof(uchar));
+		if(!*ubx){
+				return ST_ERR_NO_MEMORIA;	
 		}
 
-		ubx->payload[ubx->largo] = '\0';
-		
-		/*carga payload*/
-		if(fread(ubx->payload, 1, ubx->largo, fin) != ubx->largo){
-   				return fread_err(eof, fin);
+		/*carga campos de longitud fija*/
+		if(fread(*ubx, 1, LONGITUD_FIJA, fin) != LONGITUD_FIJA){
+   			return fread_err(eof, fin);
 			}
 
-		/*carga el checksum*/
-		if(fread(&ubx->ck_a, 1, 1, fin) != 1){
-   				return fread_err(eof, fin);
-			}
-		if(fread(&ubx->ck_b, 1, 1, fin) != 1){
-   				return fread_err(eof, fin);
+		/*convierte largo de little endian a size_t*/
+		largo = (*ubx)[POS_LARGO+1];
+		largo <<= SHIFT_BYTE;
+		largo |= (*ubx)[POS_LARGO];
+
+		/*asigna memoria para payload*/
+		aux = (uchar *) realloc(*ubx, (LONGITUD_FIJA + largo + 1)*sizeof(uchar));
+		if(!aux){
+			return ST_ERR_NO_MEMORIA;	
+		}
+		*ubx = aux;
+		*ubx[LONGITUD_FIJA + largo]= '\0';
+
+		/*lee el resto de la sentencia ubx*/
+		if(fread(*ubx + LONGITUD_FIJA, 1, largo, fin) != largo){
+   			return fread_err(eof, fin);
 			}
 	}
+
 	return ST_OK;
 }
 
