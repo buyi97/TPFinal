@@ -73,14 +73,48 @@ typedef struct rmc{
 	float sep_geoide;
 }rmc_t;
 
+/*Tipo para el id de las sentencia UBX*/
+typedef enum ubx_id{
+	NAV_PVT,
+	TIM_TOS,
+	NAV_POSLLH,
+}ubx_id;
+
+/*Estructura para nav_pvt, con los datos a guardar*/
+typedef struct nav_pvt{
+	bool gns_fix_ok;
+	fecha_t fecha;
+	hora_t hora;
+	double latitud;
+	double longitud;
+	float elevacion;
+}nav_pvt_t;
+
+/*Estructura para tim_tos, con los datos a guardar*/
+typedef struct tim_tos{
+	fecha_t fecha;
+	hora_t hora;
+	int hh_utc;
+	int mm_utc;
+}tim_tos_t;
+
+/*Estructura para nav_posllh, con los datos a guardar*/
+typedef struct nav_posllh{
+	double latitud;
+	double longitud;
+	float altura;
+}nav_posllh_t;
+
+/*Estructura UBX, con los datos a guardar*/
 typedef struct ubx{
-	unsigned char clase;
-	unsigned char id;
-	size_t largo;
-	unsigned char *payload;
-	unsigned char ck_a;
-	unsigned char ck_b;
+	ubx_id	id;
+	union sentencia {
+   		nav_pvt_t nav_pvt;
+   		tim_tos_t tim_tos;
+   		nav_posllh_t nav_posllh;
+	}sentencia;  
 }ubx_t;
+
 
 
 
