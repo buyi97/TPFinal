@@ -99,6 +99,7 @@ typedef struct gpx{
 		fecha_t fecha;
 		hora_t hora;
 	}metadata_t;
+	fecha_t fecha;
 	hora_t hora;
 	double latitud;
 	double longitud;
