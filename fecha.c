@@ -61,7 +61,7 @@ status_t str2fecha(char* cadfecha, struct fecha_t * fecha){
 	
 	ntemp = strtoul(cadfecha,&temp,10); 	/*ntemp = yyyymmdd*/
 
-	if (*temp != '\n' && *temp != '\0')
+	if (*temp != '\0')
 		return ST_ERR_FECHA_INVALIDA;
 
 	fecha->year = ntemp/10000;
