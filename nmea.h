@@ -7,6 +7,8 @@
 
 #define NMEA_ID_LEN 3
 
+#define NMEA_CANT_TIPOS	3
+
 #define NMEA_GGA_STR "GGA"
 #define NMEA_RMC_STR "RMC"
 #define NMEA_ZDA_STR "ZDA"
@@ -72,5 +74,13 @@ typedef struct nmea{
    		gga_t gga;
 	}sentencia;  
 }nmea_t
+
+/*Prototipos*/
+status_t get_nmea_id ( const char *cadena , nmea_id* id );
+status_t proc_zda(nmea_t* nmea, char* cadena);
+status_t proc_zda(nmea_t* nmea, char* cadena);
+status_t proc_zda(nmea_t* nmea, char* cadena);
+status_t proc_nmea( char* cadena );
+bool verify_checksum ( char* str_origen );
 
 #endif
