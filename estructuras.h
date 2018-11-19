@@ -80,7 +80,7 @@ typedef enum nmea_id{
 	RMC,
 	ZDA,
 	GGA,
-}nmea_id
+}nmea_id;
 
 /*Estructura NMEA, con los datos a guardar (contiene una union de rmc_t, zda_t, y gga_t porque pueden venir cualquiera de los 3)*/
 typedef struct nmea{
@@ -90,7 +90,7 @@ typedef struct nmea{
    		zda_t zda;
    		gga_t gga;
 	}sentencia;  
-}nmea_t
+}nmea_t;
 
 /*Estructura para GPX, con los datos a guardar*/
 typedef struct gpx{
