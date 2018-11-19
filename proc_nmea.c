@@ -6,6 +6,7 @@
 */
 
 #include "nmea.h"
+#include <stdlib.h>
 #include <string.h>
 #include "status.h"
 
