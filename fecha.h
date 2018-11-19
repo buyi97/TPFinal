@@ -7,12 +7,14 @@
 #define EPOCH_TM_M 	1
 #define EPOCH_TM_D 	0
 
-typedef struct fecha_t{	int year;	/* estructura para la fecha */
+typedef struct fecha_t{	
+			int year;	/* estructura para la fecha */
 			int month;
 			int day;
 			}fecha_t;
 
-typedef struct hora_t{	int hh;		/* estructura para la hora */
+typedef struct hora_t{	
+			int hh;		/* estructura para la hora */
 			int mm;
 			double ss;
 			}hora_t;
