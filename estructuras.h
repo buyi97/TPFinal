@@ -105,3 +105,16 @@ typedef struct gpx{
 	double longitud;
 	float elevacion;
 }gpx_t;
+
+/*Variable LISTA, contiene la cantidad máxima de mensajes guardados, la cantidad actual, y un puntero a la primera posición de la lista*/
+struct lista{
+	size_t cant_max;
+	size_t cant_actual;
+	void* ptr;
+};
+
+/*Estructura para la lista de GPX_T que vamos a armar*/
+typedef struct gpx_list{
+	gpx_t* act;
+	gpx_t* sig;
+}gpx_list_t;
