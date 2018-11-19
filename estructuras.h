@@ -116,5 +116,5 @@ struct lista{
 /*Estructura para la lista de GPX_T que vamos a armar*/
 typedef struct gpx_list{
 	gpx_t* act;
-	gpx_t* sig;
+	gpx_list_t* sig;
 }gpx_list_t;
