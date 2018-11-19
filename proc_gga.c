@@ -29,7 +29,7 @@
 
 /*Se asume que el checksum fue verificado*/
 
-status_t proc_zda(nmea_t* nmea, char* cadena){
+status_t proc_gga(nmea_t* nmea, char* cadena){
 	
 	char* cad_arr[NMEA_DELIM_CANT_MAX];
 	size_t cant;
