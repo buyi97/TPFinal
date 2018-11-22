@@ -107,14 +107,14 @@ typedef struct gpx{
 }gpx_t;
 
 /*Estructura para el nodo*/
-struct nodo{
-	void* dato;
-	struct nodo* sig;
-}
+typedef struct node{
+	void* act;
+	struct node* sig;
+}Node;
 
 /*Variable LISTA, contiene la cantidad máxima de mensajes guardados, la cantidad actual, y un puntero a la primera posición de la lista*/
 typedef struct list{
 	size_t cant_max;
 	size_t cant_actual;
-	struct nodo* ptr;
+	Node* ptr;
 }List;
