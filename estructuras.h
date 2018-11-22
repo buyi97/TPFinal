@@ -106,15 +106,15 @@ typedef struct gpx{
 	float elevacion;
 }gpx_t;
 
+/*Estructura para el nodo*/
+struct nodo{
+	void* dato;
+	struct nodo* sig;
+}
+
 /*Variable LISTA, contiene la cantidad máxima de mensajes guardados, la cantidad actual, y un puntero a la primera posición de la lista*/
-struct list{
+typedef struct list{
 	size_t cant_max;
 	size_t cant_actual;
-	gpx_list_t* ptr;
-};
-
-/*Estructura para la lista de GPX_T que vamos a armar*/
-typedef struct gpx_list{
-	gpx_t* act;
-	gpx_list_t* sig;
-}gpx_list_t;
+	struct nodo* ptr;
+}List;
