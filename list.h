@@ -25,4 +25,16 @@ typedef struct list{
 	Node* ptr;
 }List;
 
+/*Prototipos*/
+Node* Make_node( void* );
+void Destroy_node( Node**, void (*)(void*) );
+status_t Make_list(List* , size_t );
+status_t AppendL_list( List* , void* );
+status_t AppendR_list( List* , void* );
+void Destroy_firstnode( List* , void(*)(void*) );
+void Destroy_list( List* , void(*)(void*) );
+void* PopL_list( List* );
+void* PopR_list( List* );
+
+
 #endif
