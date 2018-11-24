@@ -23,13 +23,6 @@
 #define MSJ_DB_MSJ_UP "Se cargó un mensaje en la lista"
 
 //typedef enum {"error", "warn", "debug"} log_t;
-typedef enum status_t{
-    ST_OK, ST_ERR_DATO_INCOMP, ST_ERR_PUNT_NULL, ST_ERR_FECHA_INVALIDA,
-    ST_ERR_MISSING_ARG, ST_ERR_MISSING_NAME,
-    ST_ERR_OPEN_FILE, ST_ERR_INV_CHKSUM, ST_ERR_INV_LONG_UBX,
-    ST_ERR_INV_NMEA, ST_WARN_ID_DESC, ST_WARN_FIX_INV, ST_WARN_FULL_LIST,
-    ST_DB_BYTES_SYNC, ST_DB_ID_DETECT, ST_DB_MSJ_DET, ST_DB_MSJ_UP} status_t;
-
 void print_logs (status_t logs, FILE *flogs) {
 
     switch(logs) {
