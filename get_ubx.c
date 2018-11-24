@@ -66,7 +66,7 @@ status_t readline_ubx(char * string, bool * eof, FILE * fin){
 		}
 	}
 
-	/*si salió del while y el puntero es NULL es porque se terminó el archivo y no hay más caracteres de sincronismo*/
+	/*si salió del while y el puntero es NULL es porque se terminó el archivo y no hay más caracteres de sincronismo cargados en el vector 'string'*/
 	if(!ptrsync_char){
 		return ST_OK;
 	}
@@ -87,22 +87,22 @@ status_t readline_ubx(char * string, bool * eof, FILE * fin){
 				/*IMPRIMIR LOG*/
 			}
 			if(feof(fin)){
-    			*eof = true;
+    				*eof = true;
 				/*IMPRIMIR LOG*/
 			} 
 	}
 
-    if (checksum((uchar *) string)) /*cast a uchar para llamar a la función checksum*/
+    if (checksum((uchar *) string)) /*cast a uchar para llamar a la función checksum que trabaja con operadores de bits*/
     	return ST_OK; 
     
-    if(eof && (ptrsync_char = strstr(string, SYNC_CHARS)) == NULL) /*si se terminó el archivo y no hay más caracteres de sincronismo retorna ST_OK*/
+    if(eof && (ptrsync_char = strstr(string, SYNC_CHARS)) == NULL) /*si se terminó el archivo y no hay más caracteres de sincronismo cargados en el vector 'string' retorna ST_OK*/
     	return ST_OK;
 
    return readline_ubx(string, eof, fin); /*si el checksum no concuerda sigue buscando caracteres de sincronismo desde el lugar siguiente a dónde encontro los anteriores. No se pierde información de posibles sentencias válidas incluidas en el espacio que ocupaba la sentencia inválida. Recursividad de cola y todo el mundo contento*/
 }
 
 /*calcula el checksum*/
-bool checksum(const uchar const *string){
+bool checksum(const uchar *string){
 	uchar ck_a = 0,
 	      ck_b = 0;
 	size_t largo = 0;
@@ -121,12 +121,12 @@ bool checksum(const uchar const *string){
 
 	/*Calcula el checksum*/
 	for(i = 0 ; i < (POS_PAYLOAD + largo) ; i++){
-		ck_a = ck_a + string[i];
+		ck_a = ck_a + string++; /*recorre la sentencia moviendo el puntero 'string'*/
 		ck_b = ck_b + ck_a;
 	}
 
 	/*compara el checksum calculado*/
-	if (ck_a == string[POS_PAYLOAD + largo] && ck_b == string[POS_PAYLOAD + largo + 1])
+	if (ck_a == *string++ && ck_b == *string) /*al finalizar el 'for' anterior el puntero 'string' apunta al primer caracter de sincronismo*/
 		return true;
 	else
 		return false;
