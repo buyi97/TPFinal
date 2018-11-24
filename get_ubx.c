@@ -107,11 +107,11 @@ bool checksum(const uchar *string){
 	      ck_b = 0;
 	size_t largo = 0;
 	int i;
-
+	
 	/*pasa el largo del payload de little-endian a size_t*/
-	for(i = 0 ; i < LARGO_BYTES ; i++){
+	for(i = 0 ; i < LARGO_LEN ; i++){
 		largo <<= SHIFT_BYTE;
-		largo = string[POS_PAYLOAD - 1 - i];
+		largo =(size_t) string[POS_PAYLOAD - 1 - i];
 	}
 
 	/*si el largo leído es mayor a la máxima longitud de una sentencia UBX hay un error en la sentencia*/
@@ -121,12 +121,12 @@ bool checksum(const uchar *string){
 
 	/*Calcula el checksum*/
 	for(i = 0 ; i < (POS_PAYLOAD + largo) ; i++){
-		ck_a = ck_a + string++; /*recorre la sentencia moviendo el puntero 'string'*/
+		ck_a = ck_a + string[i]; /*recorre la sentencia*/
 		ck_b = ck_b + ck_a;
 	}
 
 	/*compara el checksum calculado*/
-	if (ck_a == *string++ && ck_b == *string) /*al finalizar el 'for' anterior el puntero 'string' apunta al primer caracter de sincronismo*/
+	if (ck_a == string[i++] && ck_b == string[i]) /*al finalizar el 'for' anterior la posición 'y' corresponde al primer caracter de sincronismo*/
 		return true;
 	else
 		return false;
