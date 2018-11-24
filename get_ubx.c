@@ -60,14 +60,13 @@ status_t readline_ubx(char * string, bool * eof, FILE * fin){
 				/*IMPRIMIR LOG*/
 			}
 			if(feof(fin)){
-    			*eof = true;
+    				*eof = true; /*después de esta asignación busca los caracteres de sincronismo una vez más antes de salir del while*/
 				/*IMPRIMIR LOG*/
-				break; /*si se terminó el archivo sale del while*/
 			} 
 		}
 	}
 
-	/*si salió del while y el puntero es NULL es porque se terminó el archivo*/
+	/*si salió del while y el puntero es NULL es porque se terminó el archivo y no hay más caracteres de sincronismo*/
 	if(!ptrsync_char){
 		return ST_OK;
 	}
@@ -105,7 +104,7 @@ status_t readline_ubx(char * string, bool * eof, FILE * fin){
 /*calcula el checksum*/
 bool checksum(const uchar const *string){
 	uchar ck_a = 0,
-		  ck_b = 0;
+	      ck_b = 0;
 	size_t largo = 0;
 	int i;
 
