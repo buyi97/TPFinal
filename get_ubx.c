@@ -14,12 +14,12 @@
 
 typedef unsigned char uchar; 
 
-status_t readline_ubx(char * buffer, bool * eof, FILE * fin);
-bool checksum(const uchar const *buffer);
+status_t readline_ubx(char ** sentencia, bool * eof, FILE * fin);
+bool checksum(const uchar *buffer);
 
 /*main para testear con NAV-PVT*/
 int main (void){
-	char buffer[STR_LEN];
+	char *sentencia;
 	char buffer2[98];
 	bool eof = false;
 	FILE *fin,
@@ -29,9 +29,9 @@ int main (void){
 	fout = fopen("prueba.txt", "wt");
 
 	while(!eof){
-		readline_ubx(buffer, &eof, fin);
+		readline_ubx(&sentencia, &eof, fin);
 		if(!eof){
-			strncpy(buffer2, buffer, 98);
+			strncpy(buffer2, sentencia, 98);
 			fprintf(fout, "%s\n",buffer2);
 
 		}
@@ -43,13 +43,15 @@ int main (void){
 	return 1;
 }
 
-/*Si el archivo tiene una sentencia UBX el programa la carga en el buffer. Cuando el archivo se termina y no se encontraron sentencias devuelve eof=true por interfaz. El largo de buffer debe ser STR_LEN, se puede validar en la primera linea con un sizeof pero mejor aclararlo como precondición y listo*/
-status_t readline_ubx(char * buffer, bool * eof, FILE * fin){
+/*Si el archivo tiene una sentencia UBX la función la carga en el buffer y devuelve un puntero "sentencia" al principio de la misma. Cuando el archivo se termina y no se encontraron sentencias devuelve eof=true y sentencia=NULL*/
+status_t readline_ubx(char ** sentencia, bool * eof, FILE * fin){
+	static char buffer[STR_LEN];
 	char * ptrsync_char;
 	size_t diferencia;
 
+
 	/*punteros no nulos*/
-	if(!buffer || !eof || !fin){
+	if(!sentencia || !eof || !fin){
 		/*IMPRIMIR LOG*/
 		return ST_ERR_PUNT_NULL;
 	}
@@ -65,13 +67,15 @@ status_t readline_ubx(char * buffer, bool * eof, FILE * fin){
 			if(feof(fin)){
     				*eof = true; /*después de esta asignación busca los caracteres de sincronismo una vez más antes de salir del while*/
 				/*IMPRIMIR LOG*/
+				break;
 			} 
 		}
 	}
 
 	/*si salió del while y el puntero es NULL es porque se terminó el archivo y no hay más caracteres de sincronismo cargados en el vector 'buffer'*/
 	if(!ptrsync_char){
-		return ST_OK;
+		*sentencia = NULL;
+    		return ST_OK;
 	}
 
 	/*mueve el puntero hacia un lugar después de los caracteres de sincronismo*/
@@ -94,13 +98,12 @@ status_t readline_ubx(char * buffer, bool * eof, FILE * fin){
 			} 
 	}
 
-    if (checksum((uchar *) buffer)) /*cast a uchar para llamar a la función checksum que trabaja con operadores de bits*/
+    if (checksum((uchar *) buffer)){ /*cast a uchar para llamar a la función checksum que trabaja con operadores de bits*/
+    	*sentencia = buffer;
     	return ST_OK; 
-    
-    if(eof && (ptrsync_char = strstr(buffer, SYNC_CHARS)) == NULL) /*si se terminó el archivo y no hay más caracteres de sincronismo cargados en el vector 'buffer' retorna ST_OK*/
-    	return ST_OK;
-
-   return readline_ubx(buffer, eof, fin); /*si el checksum no concuerda sigue buscando caracteres de sincronismo desde el lugar siguiente a dónde encontro los anteriores. No se pierde información de posibles sentencias válidas incluidas en el espacio que ocupaba la sentencia inválida. Recursividad de cola y todo el mundo contento*/
+    }
+    	
+   return readline_ubx(sentencia, eof, fin); /*si el checksum no concuerda sigue buscando caracteres de sincronismo desde el lugar siguiente a dónde encontro los anteriores. No se pierde información de posibles sentencias válidas incluidas en el espacio que ocupaba la sentencia inválida. Recursividad de cola y todo el mundo contento*/
 }
 
 /*calcula el checksum*/
