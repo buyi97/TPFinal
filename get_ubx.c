@@ -1,112 +1,134 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "status.h"
 #include "estructuras.h"
 
-#define SYNC_CHAR1 0xB5
-#define SYNC_CHAR2 0x62
+#define STR_LEN 400 /*La longitúd del arreglo debe ser mayor a la máxima longitud posible para una sentencia UBX*/
+#define SYNC_CHARS "µb" /*caracteres de sincronismo en formato ASCII*/ 
 #define SHIFT_BYTE 8
-#define LONGITUD_FIJA 6 /*campos de longitud fija incluyendo el checksum*/
-#define POS_LARGO 2
+#define SIZE_OF_SYNC_CHARS 2
+#define LARGO_BYTES 2
+#define POS_PAYLOAD 4
 
-typedef unsigned char uchar;
+typedef unsigned char uchar; 
 
-status_t readline_ubx(uchar **ubx, bool *eof, FILE *fin);
-status_t find_sync_chars_ubx(bool *eof, FILE *fin);
-status_t fread_err(bool *eof, FILE *fin);
+status_t readline_ubx(char * string, bool * eof, FILE * fin);
+bool checksum(const uchar const *string);
 
-/*main para testear	
+/* main para testear con NAV-PVT
 int main (void){
-	uchar *ubx;
-	bool eof;
-
-	readline_ubx(&ubx, &eof, stdin);
-
-	return EXIT_SUCCESS;
-}*/
-
-/*lee una sentencia ubx del archivo */
-status_t readline_ubx(uchar **ubx, bool *eof, FILE *fin){
-	status_t st;
-	size_t largo= 0;
-	uchar * aux;
+	char string[STR_LEN];
+	bool eof = false;
+	FILE *fin,
+	     *fout;
 	
-	/*punteros no nulos*/
-	if(!fin || !ubx	|| !eof)
-		return ST_ERR_PUNT_NULL;
+	fin = fopen("UBXtest", "rb");
+	fout = fopen("prueba", "wb");
 
-	eof = false;
-
-	/*mueve el puntero del archivo de entrada hasta el lugar siguiente a los caracteres de sincronismo o hasta EOF */
-	if((st = find_sync_chars_ubx(eof, fin)) != ST_OK)
-		return st;
-
-	/*carga la sentencia ubx*/
-	if(!eof){
-		/*asigna memoria inicial*/
-		*ubx = (uchar *) malloc(LONGITUD_FIJA*sizeof(uchar));
-		if(!*ubx){
-				return ST_ERR_NO_MEMORIA;	
-		}
-
-		/*carga campos de longitud fija*/
-		if(fread(*ubx, 1, LONGITUD_FIJA, fin) != LONGITUD_FIJA){
-   			return fread_err(eof, fin);
-			}
-
-		/*convierte largo de little endian a size_t*/
-		largo = (*ubx)[POS_LARGO+1];
-		largo <<= SHIFT_BYTE;
-		largo |= (*ubx)[POS_LARGO];
-
-		/*asigna memoria para payload*/
-		aux = (uchar *) realloc(*ubx, (LONGITUD_FIJA + largo + 1)*sizeof(uchar));
-		if(!aux){
-			return ST_ERR_NO_MEMORIA;	
-		}
-		*ubx = aux;
-		*ubx[LONGITUD_FIJA + largo]= '\0';
-
-		/*lee el resto de la sentencia ubx*/
-		if(fread(*ubx + LONGITUD_FIJA, 1, largo, fin) != largo){
-   			return fread_err(eof, fin);
-			}
+	while(!eof){
+		readline_ubx(string, &eof, fin);
+		if(!eof)
+			fwrite(string,1,96,fout);
 	}
 
-	return ST_OK;
-}
+	fclose(fin);
+	fclose(fout);
 
-/*mueve el puntero del archivo de entrada hasta el lugar siguiente a los caracteres de sincronismo o hasta EOF */
-status_t find_sync_chars_ubx(bool *eof, FILE *fin){
-	uchar aux;
-	
+	return 1;
+}*/
+
+/*Si el archivo tiene una sentencia UBX el programa la carga en el string. Cuando el archivo se termina y no se encontraron sentencias devuelve eof=true por interfaz. El largo de string debe ser STR_LEN, se puede validar en la primera linea con un sizeof pero mejor aclararlo como precondición y listo*/
+status_t readline_ubx(char * string, bool * eof, FILE * fin){
+	char * ptrsync_char,
+		 string_aux[STR_LEN];
+	size_t diferencia;
+
 	/*punteros no nulos*/
-	if(!fin || !eof)
+	if(!string || !eof || !fin){
+		/*IMPRIMIR LOG*/
 		return ST_ERR_PUNT_NULL;
+	}
 
 	*eof = false;
 
-	/*busca los dos caracteres de sincronismo*/
-	while (fread(&aux, 1, 1, fin) == 1){				
-		while(aux == SYNC_CHAR1){
-			if(fread(&aux, 1, 1, fin) != 1){
-   				return fread_err(eof, fin);
+	/*busca los caracteres de sincronismo y guarda su posición en ptrsync_char*/
+	while((ptrsync_char = strstr(string, SYNC_CHARS)) == NULL && *eof == false){
+		if(fread(string, 1, STR_LEN, fin) != STR_LEN){ /*si no encontró los caracteres vuelve a leer del archivo*/
+			if (ferror(fin)){
+				/*IMPRIMIR LOG*/
 			}
-			if(aux == SYNC_CHAR2){
-				return ST_OK;
-			}	
+			if(feof(fin)){
+    			*eof = true;
+				/*IMPRIMIR LOG*/
+				break; /*si se terminó el archivo sale del while*/
+			} 
 		}
 	}
 
-	return fread_err(eof, fin);
+	/*si salió del while y el puntero es NULL es porque se terminó el archivo*/
+	if(!ptrsync_char){
+		return ST_OK;
+	}
+
+	/*mueve el puntero hacia un lugar después de los caracteres de sincronismo*/
+	ptrsync_char += SIZE_OF_SYNC_CHARS;
+
+	/*calcula el espacio inicial del vector donde no se encontraron caracteres de sincronismo*/
+	diferencia = STR_LEN - sizeof(ptrsync_char);
+
+	/*mueve la sentencia al principio del vector 'string' ingresado como parámetro*/
+	strcpy(string_aux, ptrsync_char);
+	strcpy(string, string_aux);
+
+	/*completa el espacio sobrante al final del vector 'string' leyendo del archivo*/
+	if(fread(string + (STR_LEN - diferencia), 1, diferencia, fin) != diferencia){
+			if (ferror(fin)){
+				/*IMPRIMIR LOG*/
+			}
+			if(feof(fin)){
+    			*eof = true;
+				/*IMPRIMIR LOG*/
+			} 
+	}
+
+    if (checksum((uchar *) string)) /*cast a uchar para llamar a la función checksum*/
+    	return ST_OK; 
+    
+    if(eof && (ptrsync_char = strstr(string, SYNC_CHARS)) == NULL) /*si se terminó el archivo y no hay más caracteres de sincronismo retorna ST_OK*/
+    	return ST_OK;
+
+   return readline_ubx(string, eof, fin); /*si el checksum no concuerda sigue buscando caracteres de sincronismo desde el lugar siguiente a dónde encontro los anteriores. No se pierde información de posibles sentencias válidas incluidas en el espacio que ocupaba la sentencia inválida. Recursividad de cola y todo el mundo contento*/
 }
 
-status_t fread_err(bool *eof, FILE *fin){
-	if(feof(fin)){
-    	*eof = true;
-		return ST_OK;
-	}else{
-		return ST_IOERROR;	
-	}		
+/*calcula el checksum*/
+bool checksum(const uchar const *string){
+	uchar ck_a = 0,
+		  ck_b = 0;
+	size_t largo = 0;
+	int i;
+
+	/*pasa el largo del payload de little-endian a size_t*/
+	for(i = 0 ; i < LARGO_BYTES ; i++){
+		largo <<= SHIFT_BYTE;
+		largo = string[POS_PAYLOAD - 1 - i];
+	}
+
+	/*si el largo leído es mayor a la máxima longitud de una sentencia UBX hay un error en la sentencia*/
+	if(largo > STR_LEN)
+		/*IMPRIMIR LOG*/
+		return false;
+
+	/*Calcula el checksum*/
+	for(i = 0 ; i < (POS_PAYLOAD + largo) ; i++){
+		ck_a = ck_a + string[i];
+		ck_b = ck_b + ck_a;
+	}
+
+	/*compara el checksum calculado*/
+	if (ck_a == string[POS_PAYLOAD + largo] && ck_b == string[POS_PAYLOAD + largo + 1])
+		return true;
+	else
+		return false;
 }
