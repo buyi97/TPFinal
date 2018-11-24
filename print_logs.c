@@ -1,3 +1,12 @@
+/**
+* @print_logs.c
+* @Author pulpo
+* @date 24/11/2018
+* @brief La funcion recibe el log y un puntero a file e imprime
+* el mensaje correspondiente en el archivo indicado.
+*/
+
+#include <stdio.h>
 
 #define MSJ_ERR_OPEN_FILE "No se pudo abrir el archivo"
 #define MSJ_ERR_INV_CHKSUM "El checksum no concuerda"
@@ -17,28 +26,57 @@
 typedef enum status_t{
     ST_OK, ST_ERR_DATO_INCOMP, ST_ERR_PUNT_NULL, ST_ERR_FECHA_INVALIDA,
     ST_ERR_MISSING_ARG, ST_ERR_MISSING_NAME,
-    ST_ERR_OPEN_FILE, ST_ERR_INV_CHKSUM, ST_ERR_INV_LONG_UBX
+    ST_ERR_OPEN_FILE, ST_ERR_INV_CHKSUM, ST_ERR_INV_LONG_UBX,
     ST_ERR_INV_NMEA, ST_WARN_ID_DESC, ST_WARN_FIX_INV, ST_WARN_FULL_LIST,
-    ST_DB_BYTES_SYNC, ST_DB_ID_DETECT, ST_DB_MSJ_DET, ST_DB_MSJ_UP}status_t;
+    ST_DB_BYTES_SYNC, ST_DB_ID_DETECT, ST_DB_MSJ_DET, ST_DB_MSJ_UP} status_t;
 
-void print_logs(status_t nivel_log ) {
-    status_t logs;
+void print_logs (status_t logs, FILE *flogs) {
 
     switch(logs) {
 
-        case 'ST_ERR_OPEN_FILE':
-            fprintf(stdout, MSJ_ERR_OPEN_FILE);
-            break;
-        case 'ST_ERR_INV_CHKSUM':
-            fprint(stdout, MSJ_ERR_INV_CHKSUM);
+        /* Errores (ERR) */
+        case ST_ERR_OPEN_FILE:
+            fprintf(flogs, "%s\n", MSJ_ERR_OPEN_FILE);
+
+        case ST_ERR_INV_CHKSUM:
+            fprintf(flogs, "%s\n", MSJ_ERR_INV_CHKSUM);
             break;
 
+        case ST_ERR_INV_LONG_UBX:
+            fprintf(flogs, "%s\n", MSJ_ERR_INV_LONG_UBX);
+            break;
+
+        case ST_ERR_INV_NMEA:
+            fprintf(flogs, "%s\n", MSJ_ERR_INV_NMEA);
+            break;
+        /* Warnings (WARN) */
+        case ST_WARN_ID_DESC:
+            fprintf(flogs, "%s\n", MSJ_WARN_ID_DESC);
+            break;
+
+        case ST_WARN_FIX_INV:
+            fprintf(flogs, "%s\n", MSJ_WARN_FIX_INV);
+            break;
+
+        case ST_WARN_FULL_LIST:
+            fprintf(flogs, "%s\n", MSJ_WARN_FULL_LIST);
+            break;
+
+        /* Debug (DB) */
+        case ST_DB_BYTES_SYNC:
+            fprintf(flogs, "%s\n", MSJ_DB_BYTES_SYNC);
+            break;
+
+        case ST_DB_ID_DETECT:
+            fprintf(flogs, "%s\n", MSJ_DB_ID_DETECT);
+            break;
+
+        case ST_DB_MSJ_DET:
+            fprintf(flogs, "%s\n", MSJ_DB_MSJ_DET);
+            break;
+
+        case ST_DB_MSJ_UP:
+            fprintf(flogs, "%s\n", MSJ_DB_MSJ_UP);
+            break;
     }
-}
-
-int main (void) {
-    status_t logs = ST_ERR_INV_CHKSUM;
-
-    print_logs(logs);
-
 }
