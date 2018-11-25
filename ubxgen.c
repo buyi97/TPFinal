@@ -35,33 +35,31 @@ int main (void){
 	sentence[3] = 0x07;
 	sentence[4] = 0x5C; /*largo igual a 92, sentencia PVT*/
 	sentence[5] = 0x00;
-
+	
 	for(j = 0 ; j < 2000 ; j++){
-		for(i = 2 ; i < 98 ; i++){
-			/*carga el payload*/
-			for(i = 6 ; i < 98 ; i++){
-				sentence[i] = rand()%255;
-			}
-
-			/*Calcula el checksum*/
-			for(i = 2 ; i < 98 ; i++){
-				ck_a = ck_a + sentence[i];
-				ck_b = ck_b + ck_a;
-			}
-
-			sentence[98]=ck_a;
-			sentence[99]=ck_b;
-			ck_a = 0;
-			ck_b = 0;
-
-			fwrite(sentence,1,100,fout);
-		
-
-			if(checksum(sentence + 2))
-				ok++;
-			else 
-				fail++;
+		/*carga el payload*/
+		for(i = 6 ; i < 98 ; i++){
+			sentence[i] = rand()%255;
 		}
+
+		/*Calcula el checksum*/
+		for(i = 2 ; i < 98 ; i++){
+			ck_a = ck_a + sentence[i];
+			ck_b = ck_b + ck_a;
+		}
+
+		sentence[98]=ck_a;
+		sentence[99]=ck_b;
+		ck_a = 0;
+		ck_b = 0;
+
+		fwrite(sentence,1,100,fout);
+		
+		if(checksum(sentence + 2))
+			ok++;
+		else 
+			fail++;
+		
 	}
 
 	printf("checksum OK: %d \nchecksum fail: %d\n", ok, fail);
