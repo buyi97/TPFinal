@@ -14,11 +14,11 @@
 
 typedef unsigned char uchar; 
 
-bool readline_ubx(uchar ** sentencia, bool * eof, FILE * fin);
+status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin);
 bool get_sentence(uchar * buffer, bool * eof, FILE * fin);
+bool checksum(const uchar *buffer);
 void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin);
 void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof);
-bool checksum(const uchar *buffer);
 
 /*Si el archivo tiene una sentencia UBX la función la carga en el buffer y devuelve un puntero "sentencia" al principio de la misma (no incluye los caracteres de sincronismo). Cuando el archivo se termina y no se encontraron sentencias devuelve eof=true y sentencia=NULL*/
 status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin){
@@ -71,6 +71,7 @@ bool get_sentence(uchar * buffer, bool * eof, FILE * fin){
 
 /*borra los bytes que se encuentran antes de la posición 'pos' y carga la misma cantidad al final del buffer leyendo del archivo. 'pos' queda ubicado al principo del buffer*/
 void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin){
+	int i;
 	
 	for(i = 0 ; i < BUFFER_LEN-pos ; i++){
 		buffer[i] = buffer[pos + i];
@@ -84,10 +85,10 @@ void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin){
 /*lee del archivo y modifica el puntero 'eof' cuando el archivo se termina*/
 void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof){
 	if(fread(ptr, size, nmemb, stream) != nmemb){ 
-			if (ferror(fin)){
+			if (ferror(stream)){
 				/*IMPRIMIR LOG*/
 			}
-			if(feof(fin)){
+			if(feof(stream)){
     				*eof = true; 
 				/*IMPRIMIR LOG*/
 			}
