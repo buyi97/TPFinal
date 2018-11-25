@@ -5,7 +5,7 @@
 #include "status.h"
 #include "estructuras.h"
 
-#define STR_LEN 92 /*La longitúd del buffer debe ser mayor a la máxima longitud posible para una sentencia UBX*/
+#define BUFFER_LEN 400 /*La longitúd del buffer debe ser mayor a la máxima longitud posible para una sentencia UBX*/
 #define SHIFT_BYTE 8
 #define SIZE_OF_SYNC_CHARS 2
 #define LARGO_LEN 2 
@@ -84,7 +84,7 @@ bool checksum(const uchar *buffer){
 	}
 
 	/*si el largo leído es mayor a la máxima longitud de una sentencia UBX hay un error en la sentencia*/
-	if(largo > STR_LEN)
+	if(largo > BUFFER_LEN)
 		/*IMPRIMIR LOG*/
 		return false;
 
