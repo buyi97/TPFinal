@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 #include "status.h"
 #include "estructuras.h"
 
-#define BUFFER_LEN 400 /*La longitúd del arreglo debe ser mayor a la máxima longitud posible para una sentencia UBX*/
+#define BUFFER_LEN 400 /*La longitúd del buffer debe ser mayor a la máxima longitud posible para una sentencia UBX*/
 #define SYNC_CHAR1 0xB5
 #define SYNC_CHAR2 0X62
 #define SHIFT_BYTE 8
@@ -20,9 +19,15 @@ bool checksum(const uchar *buffer);
 void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin);
 void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof);
 
+int main (void){
+
+	return EXIT_SUCCESS;
+}
+
 /*Si el archivo tiene una sentencia UBX la función la carga en el buffer y devuelve un puntero "sentencia" al principio de la misma (no incluye los caracteres de sincronismo). Cuando el archivo se termina y no se encontraron sentencias devuelve eof=true y sentencia=NULL*/
 status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin){
 	static uchar buffer[BUFFER_LEN];
+	 static bool buffer_empty = true;
 
 	/*punteros no nulos*/
 	if(!sentencia || !eof || !fin){
@@ -30,8 +35,15 @@ status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin){
 		return ST_ERR_PUNT_NULL;
 	}
 
+	/*carga inicial del buffer*/
+	if(buffer_empty){
+		fread_grind(buffer, 1, BUFFER_LEN, fin, eof);
+		buffer_empty = false;
+	}
+
 	*eof = false;
 
+	/*busca y devuelve sentencias UBX validadas hasta llegar a EOF*/
 	while(get_sentence(buffer, eof, fin)){
 		if(checksum(buffer)){
 			*sentencia = buffer;
@@ -41,6 +53,7 @@ status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin){
 		}	
 	}
 
+	/*si salió del while es porque no hay más sentencias*/
 	*sentencia = NULL;
 	return ST_OK;
 }
@@ -72,12 +85,12 @@ bool get_sentence(uchar * buffer, bool * eof, FILE * fin){
 /*borra los bytes que se encuentran antes de la posición 'pos' y carga la misma cantidad al final del buffer leyendo del archivo. 'pos' queda ubicado al principo del buffer*/
 void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin){
 	int i;
-	
+
 	for(i = 0 ; i < BUFFER_LEN-pos ; i++){
 		buffer[i] = buffer[pos + i];
 	}
 
-	fread_grind(buffer, 1, pos, fin, eof);
+	fread_grind(buffer + BUFFER_LEN - pos, 1, pos, fin, eof);
 			
 	return;
 }
