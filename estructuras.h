@@ -94,8 +94,8 @@ typedef struct nav_pvt{
 typedef struct tim_tos{
 	fecha_t fecha;
 	hora_t hora;
-	int hh_utc;
-	int mm_utc;
+	int week;
+	double tow;
 }tim_tos_t;
 
 /*Estructura para nav_posllh, con los datos a guardar*/
