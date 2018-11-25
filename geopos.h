@@ -1,7 +1,7 @@
 #ifndef GEOPOS__H
 #define GEOPOS__H
 
-#include "geopos.c"
+#include "status.h"
 
 /* Defines para latitud */
 #define STR_SUR 	"S"

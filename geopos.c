@@ -6,6 +6,7 @@
 */
 
 #include <string.h>
+#include <stdlib.h>
 #include "status.h"
 #include "geopos.h"
 
@@ -15,7 +16,7 @@
 * @return El estado en el que terminó la función (si fue todo bien ST_OK)
 */
 
-status_t str2lat(char* cadena, char* indicador, double* latitud){
+status_t str2lat(char* cad_lat, char* indicador, double* latitud){
 	
 	char *ctemp;
 	double ntemp;
@@ -23,8 +24,9 @@ status_t str2lat(char* cadena, char* indicador, double* latitud){
 	if ( !cad_lat || !indicador || !latitud )
 		return ST_ERR_PUNT_NULL;
 	
-	if ( strcmp(indicador, STR_NORTE) != 0 || strcmp(indicador, STR_SUR) != 0 )
+	if ( strcmp(indicador, STR_NORTE) != 0 && strcmp(indicador, STR_SUR) != 0 ){
 		return ST_ERR_FIX_INVALIDO;
+	}
 	
 	ntemp = strtod(cad_lat, &ctemp);
 
@@ -35,10 +37,10 @@ status_t str2lat(char* cadena, char* indicador, double* latitud){
 		return ST_ERR_FIX_INVALIDO;
 
 	ntemp -= (*latitud)*100;			/*le saco los grados*/
-	*(latitud) += ntemp/60; 			/*le agrego los minutos pasados a grados*/
+	*latitud += ntemp/60; 			/*le agrego los minutos pasados a grados*/
 	
 	if ( strcmp(indicador, STR_SUR) == 0 )
-		*(latitud) *= -1;
+		*latitud *= -1;
 	
 	return ST_OK;
 }
@@ -57,7 +59,7 @@ status_t str2lon(char* cad_lon, char* indicador, double* longitud){
 	if ( !cad_lon || !indicador || !longitud )
 		return ST_ERR_PUNT_NULL;
 	
-	if ( strcmp(indicador, STR_ESTE) != 0 || strcmp(indicador, STR_OESTE) != 0 )
+	if ( strcmp(indicador, STR_ESTE) != 0 && strcmp(indicador, STR_OESTE) != 0 )
 		return ST_ERR_FIX_INVALIDO;
 	
 	ntemp = strtod(cad_lon, &ctemp);
@@ -69,10 +71,10 @@ status_t str2lon(char* cad_lon, char* indicador, double* longitud){
 		return ST_ERR_FIX_INVALIDO;
 
 	ntemp -= (*longitud)*100;			/*le saco los grados*/
-	*(longitud) += ntemp/60; 			/*le agrego los minutos pasados a grados*/
+	*longitud += ntemp/60; 			/*le agrego los minutos pasados a grados*/
 	
 	if ( strcmp(indicador, STR_OESTE) == 0 )
-		*(longitud) *= -1;
+		*longitud *= -1;
 	
 	return ST_OK;
 }
