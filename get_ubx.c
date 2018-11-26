@@ -18,7 +18,6 @@ bool get_sentence(uchar * buffer, bool * eof, FILE * fin);
 bool checksum(const uchar *buffer);
 void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin);
 void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof);
-void debug(uchar *buffer, FILE *fin);
 
 /*Si el archivo tiene una sentencia UBX la función la carga en el buffer y devuelve un puntero "sentencia" al principio de la misma (no incluye los caracteres de sincronismo). Cuando el archivo se termina y no se encontraron sentencias devuelve eof=true y sentencia=NULL*/
 status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin){
