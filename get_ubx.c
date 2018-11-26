@@ -4,7 +4,7 @@
 #include "status.h"
 #include "estructuras.h"
 
-#define BUFFER_LEN 400 /*La longitúd del buffer debe ser mayor a la máxima longitud posible para una sentencia UBX*/
+#define BUFFER_LEN 120 /*La longitúd del buffer debe ser mayor a la máxima longitud posible para una sentencia UBX*/
 #define SYNC_CHAR1 0xB5
 #define SYNC_CHAR2 0X62
 #define SHIFT_BYTE 8
@@ -18,11 +18,7 @@ bool get_sentence(uchar * buffer, bool * eof, FILE * fin);
 bool checksum(const uchar *buffer);
 void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin);
 void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof);
-
-int main (void){
-
-	return EXIT_SUCCESS;
-}
+void debug(uchar *buffer, FILE *fin);
 
 /*Si el archivo tiene una sentencia UBX la función la carga en el buffer y devuelve un puntero "sentencia" al principio de la misma (no incluye los caracteres de sincronismo). Cuando el archivo se termina y no se encontraron sentencias devuelve eof=true y sentencia=NULL*/
 status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin){
@@ -44,17 +40,18 @@ status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin){
 	*eof = false;
 
 	/*busca y devuelve sentencias UBX validadas hasta llegar a EOF*/
-	while(get_sentence(buffer, eof, fin)){
-		if(checksum(buffer)){
+	while(get_sentence(buffer, eof, fin)){   
+		if(checksum(buffer)){   
 			*sentencia = buffer;
 			return ST_OK;
 		}else{
 			/*IMPRIMIR LOG*/
-		}	
+		}
 	}
-
+	
 	/*si salió del while es porque no hay más sentencias*/
 	*sentencia = NULL;
+	*eof=true;
 	return ST_OK;
 }
 
@@ -64,7 +61,7 @@ bool get_sentence(uchar * buffer, bool * eof, FILE * fin){
 
 	/*busca los dos caracteres de sincronismo en el buffer excepto en los dos últimos bytes*/
 	for(i = 0 ; i < BUFFER_LEN-2 ; i++){
-		if(buffer[i] == SYNC_CHAR1){
+		if(buffer[i] == SYNC_CHAR1){ 
 			if(buffer[i + 1] == SYNC_CHAR2){
 				/*mueve la sentencia al principio del buffer*/
 				load_buffer(buffer, i + 2, eof, fin);
@@ -74,8 +71,10 @@ bool get_sentence(uchar * buffer, bool * eof, FILE * fin){
 	}
 
 	/*si salió del 'for' y se terminó el archivo es porque no hay más sentencias para leer*/
-	if(eof)
+	if(feof(fin)){
+		*eof = true;
 		return false;
+	}
 
 	/*si salió del 'for' y no se terminó el archivo mueve los dos ultimos bytes al principio del buffer y vuelve a empezar*/
 	load_buffer(buffer, BUFFER_LEN-2, eof, fin);
@@ -86,12 +85,14 @@ bool get_sentence(uchar * buffer, bool * eof, FILE * fin){
 void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin){
 	int i;
 
+	/*mueve la sentencia al principio del buffer*/
 	for(i = 0 ; i < BUFFER_LEN-pos ; i++){
 		buffer[i] = buffer[pos + i];
 	}
 
+	
+	/*sobreescribe la parte final del buffer*/
 	fread_grind(buffer + BUFFER_LEN - pos, 1, pos, fin, eof);
-			
 	return;
 }
 
@@ -101,8 +102,8 @@ void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof)
 			if (ferror(stream)){
 				/*IMPRIMIR LOG*/
 			}
-			if(feof(stream)){
-    				*eof = true; 
+			if(feof(stream)){ 
+				*eof = true;
 				/*IMPRIMIR LOG*/
 			}
 	}
@@ -117,7 +118,7 @@ bool checksum(const uchar *buffer){
 	int i;
 	
 	/*pasa el largo del payload de little-endian a size_t*/
-	for(i = 0 ; i < LARGO_LEN ; i++){
+	for(i = 0 ; i <LARGO_LEN ; i++){
 		largo <<= SHIFT_BYTE;
 		largo |= buffer[POS_PAYLOAD - 1 - i];
 	}
@@ -134,8 +135,10 @@ bool checksum(const uchar *buffer){
 	}
 
 	/*compara el checksum calculado*/
-	if (ck_a == buffer[i++] && ck_b == buffer[i]) /*al finalizar el 'for' anterior la posición 'i' corresponde al primer caracter de sincronismo*/
+	if (ck_a == buffer[i++] && ck_b == buffer[i]){ /*al finalizar el 'for' anterior la posición 'i' corresponde al primer caracter de sincronismo*/
 		return true;
-	else
-		return false;
+	}else{
+		return false;	
+	}
+		
 }
