@@ -94,11 +94,12 @@ typedef struct ubx{
    		nav_posllh_t nav_posllh;
    		tim_tos_t tim_tos;
 	}type;  
-}nmea_t;
+}ubx_t;
 
 
-proc_tim_tos(const char * sentencia, nav_pvt_t * pvt);
-status_t proc_nav_pvt(const char * sentencia, nav_pvt_t * pvt);
+status_t proc_tim_tos(const char * sentencia, ubx_t * pvt);
+status_t proc_nav_pvt(const char * sentencia, ubx_t * pvt);
+status_t proc_nav_pos(const char * sentencia, ubx_t * pvt);
 status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin);
 bool get_sentence(uchar * buffer, bool * eof, FILE * fin);
 void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin);
@@ -106,4 +107,5 @@ void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof)
 bool checksum(const uchar *buffer);
 ulong letol(const uchar * string, size_t pos, size_t len);
 double lotof(ulong entero);
+
 #endif
