@@ -31,7 +31,60 @@ int main (void){
 	return EXIT_SUCCESS;
 }
 
- 	
+proc_nav_pvt(const char * sentencia, nav_pvt_t * pvt){
+	if(!sentencia || !pvt){
+		/*IMPRIMIR LOG*/
+		return ST_ERR_PUNT_NULL;
+	}
+
+	/*carga el estado del fix*/
+	pvt->type.pvt.gns_fix_ok =
+
+	/*carga el posicionamiento*/
+	pvt->type.pvt.latitud = 
+	pvt->type.pvt.longitud =
+	pvt->type.pvt.elevacion = (int) letol(sentencia, PVT_ELEVACION_POS, len);
+	
+	/*carga la fecha*/
+	pvt->type.pvt.fecha.year = (int) letol(sentencia, PVT_YEAR_POS, len);
+	pvt->type.pvt.fecha.month = (int) letol(sentencia, PVT_MONTH_POS, len);
+	pvt->type.pvt.fecha.day = (int) letol(sentencia, PVT_DAY_POS, len);
+	
+	/*carga la hora*/
+	pvt->type.pvt.hora.hh = (int) letol(sentencia, PVT_HH_POS, len);
+	pvt->type.pvt.hora.mm = (int) letol(sentencia, PVT_MM_POS, len);
+	pvt->type.pvt.hora.ss =
+
+	return ST_OK;
+}
+proc_tim_tos(const char * sentencia, nav_pvt_t * pvt){
+	if(!sentencia || !pvt){
+		/*IMPRIMIR LOG*/
+		return ST_ERR_PUNT_NULL;
+	}
+
+	/*carga la fecha*/
+	pvt->type.tim_tos.fecha. =
+	pvt->type.tim_tos.fecha. =
+	pvt->type.tim_tos.fecha. =
+	
+	/*carga la hora*/
+	pvt->type.tim_tos.hora. =
+	pvt->type.tim_tos.hora. =
+	pvt->type.tim_tos.hora. =
+
+	return ST_OK;
+}
+
+proc_nav_posllh(const char * sentencia, nav_pvt_t * pvt){
+	if(!sentencia || !pvt){
+		/*IMPRIMIR LOG*/
+		return ST_ERR_PUNT_NULL;
+	}
+
+
+}
+
 /*Si el archivo tiene una sentencia UBX la función la carga en el buffer y devuelve un puntero "sentencia" al principio de la misma (no incluye los caracteres de sincronismo). Cuando el archivo se termina y no se encontraron sentencias devuelve eof=true y sentencia=NULL*/
 status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin){
 	static uchar buffer[BUFFER_LEN];
