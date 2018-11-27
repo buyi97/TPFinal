@@ -1,24 +1,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 #include "status.h"
-#include "estructuras.h"
+#include "ubx.h"
 
-#define BUFFER_LEN 120 /*La longitúd del buffer debe ser mayor a la máxima longitud posible para una sentencia UBX*/
-#define SYNC_CHAR1 0xB5
-#define SYNC_CHAR2 0X62
-#define SHIFT_BYTE 8
-#define LARGO_LEN 2 
-#define POS_PAYLOAD 4
+int main (void){
+	uchar *sentencia;
+	bool eof = false;
+	FILE *fin,
+	     *fout;
+	int i=0;
+	
+	fin = fopen("UBXtest.txt", "rb");
+	fout = fopen("prueba.txt", "wb");
 
-typedef unsigned char uchar; 
+	while(!eof){
+		readline_ubx(&sentencia, &eof, fin);
+		if(!eof){
+			i++;
+			fwrite(sentencia, 1, 98, fout);
+		}
+	}
 
-status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin);
-bool get_sentence(uchar * buffer, bool * eof, FILE * fin);
-bool checksum(const uchar *buffer);
-void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin);
-void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof);
+	printf("se leyeron %d setencias UBX.\n", i);
+ 
+	fclose(fin);
+	fclose(fout);
 
+	return EXIT_SUCCESS;
+}
+
+ 	
 /*Si el archivo tiene una sentencia UBX la función la carga en el buffer y devuelve un puntero "sentencia" al principio de la misma (no incluye los caracteres de sincronismo). Cuando el archivo se termina y no se encontraron sentencias devuelve eof=true y sentencia=NULL*/
 status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin){
 	static uchar buffer[BUFFER_LEN];
@@ -95,7 +108,7 @@ void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin){
 	return;
 }
 
-/*lee del archivo y modifica el puntero 'eof' cuando el archivo se termina*/
+/*lee del archivo y sobreescribe la parte final del buffer */
 void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof){
 	if(fread(ptr, size, nmemb, stream) != nmemb){ 
 			if (ferror(stream)){
@@ -113,15 +126,12 @@ void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof)
 bool checksum(const uchar *buffer){
 	uchar ck_a = 0,
 	      ck_b = 0;
-	size_t largo = 0;
+	long largo = 0;
 	int i;
 	
-	/*pasa el largo del payload de little-endian a size_t*/
-	for(i = 0 ; i <LARGO_LEN ; i++){
-		largo <<= SHIFT_BYTE;
-		largo |= buffer[POS_PAYLOAD - 1 - i];
-	}
-
+	/*lee el largo*/
+	largo = letol(buffer, POS_LARGO, LEN_LARGO);
+	
 	/*si el largo leído es mayor a la máxima longitud de una sentencia UBX hay un error en la sentencia*/
 	if(largo > BUFFER_LEN)
 		/*IMPRIMIR LOG*/
@@ -138,6 +148,50 @@ bool checksum(const uchar *buffer){
 		return true;
 	}else{
 		return false;	
+	}	
+}
+
+/*convierte de little-endian a entero*/
+ulong letol(const uchar *string, size_t pos, size_t len){
+	ulong entero = 0;
+	int i;
+
+	for(i = 0 ; i < len ; i++)
+		entero |= string[pos + i] << SHIFT_BYTE*i;
+
+	return entero;
+}
+
+/* convierte un decimal expresado en Estándar IEEE 754 a float */
+double lotof(ulong entero){
+	int i,
+		signo = 0,
+		exponente = 0,
+		mantisa_int = 0; 
+	double decimal,
+		   mantisa_double = 1;/*se inicializa con el bit implícito*/
+
+	/* lee el signo */
+	signo = (entero & MASK_SIGNO) >> SHIFT_SIGNO;
+	if(signo==1){
+		signo = -1;
+	}else{
+		signo = 1;
 	}
-		
+
+	/*lee el exponente*/
+	exponente = (entero & MASK_EXPONENTE) >> SHIFT_EXPONENTE;
+	exponente -= 127;
+
+	/*lee la mantisa*/
+	mantisa_int = entero & MASK_MANTISA;
+	for(i = 0 ; i < 23 ; i++){
+		if((mantisa_int>>(22-i))&1)
+			mantisa_double += ldexp(1, -i - 1);
+	}
+	
+	/*calcula el valor en punto flotante */
+	decimal = signo * ldexp(mantisa_double, exponente);
+
+	return decimal;
 }
