@@ -1,3 +1,10 @@
+/**
+* @file ubx.c
+* @Author mauroarbuello
+* @date 22/11/2019
+* @brief Funciones para UBX
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -31,59 +38,89 @@ int main (void){
 	return EXIT_SUCCESS;
 }
 
-proc_nav_pvt(const char * sentencia, nav_pvt_t * pvt){
-	if(!sentencia || !pvt){
+/**
+* @brief Cargar en una estructura los datos de UBX_NAV_PVT a partir de un arreglo de bytes
+* @param sentencia: arreglo de bytes
+* @param ubx: puntero a ubx_t
+* @return status_t : el estado en el que termina la función (si fue todo bien ST_OK)
+*/
+
+status_t proc_nav_pvt(const char * sentencia, ubx_t * ubx){
+	if(!sentencia || !ubx){
 		/*IMPRIMIR LOG*/
 		return ST_ERR_PUNT_NULL;
 	}
 
 	/*carga el estado del fix*/
-	pvt->type.pvt.gns_fix_ok =
+	ubx->type.pvt.gns_fix_ok =
 
 	/*carga el posicionamiento*/
-	pvt->type.pvt.latitud = 
-	pvt->type.pvt.longitud =
-	pvt->type.pvt.elevacion = (int) letol(sentencia, PVT_ELEVACION_POS, len);
+	ubx->type.pvt.latitud = 
+	ubx->type.pvt.longitud =
+	ubx->type.pvt.elevacion = (int) letol(sentencia, PVT_ELEVACION_POS, len);
 	
 	/*carga la fecha*/
-	pvt->type.pvt.fecha.year = (int) letol(sentencia, PVT_YEAR_POS, len);
-	pvt->type.pvt.fecha.month = (int) letol(sentencia, PVT_MONTH_POS, len);
-	pvt->type.pvt.fecha.day = (int) letol(sentencia, PVT_DAY_POS, len);
+	ubx->type.pvt.fecha.year = (int) letol(sentencia, PVT_YEAR_POS, len);
+	ubx->type.pvt.fecha.month = (int) letol(sentencia, PVT_MONTH_POS, len);
+	ubx->type.pvt.fecha.day = (int) letol(sentencia, PVT_DAY_POS, len);
 	
 	/*carga la hora*/
-	pvt->type.pvt.hora.hh = (int) letol(sentencia, PVT_HH_POS, len);
-	pvt->type.pvt.hora.mm = (int) letol(sentencia, PVT_MM_POS, len);
-	pvt->type.pvt.hora.ss =
+	ubx->type.pvt.hora.hh = (int) letol(sentencia, PVT_HH_POS, len);
+	ubx->type.pvt.hora.mm = (int) letol(sentencia, PVT_MM_POS, len);
+	ubx->type.pvt.hora.ss =
 
 	return ST_OK;
 }
-proc_tim_tos(const char * sentencia, nav_pvt_t * pvt){
-	if(!sentencia || !pvt){
+
+/**
+* @brief Cargar en una estructura los datos de UBX_TIM_ a partir de un arreglo de bytes
+* @param sentencia: arreglo de bytes
+* @param ubx: puntero a ubx_t
+* @return status_t : el estado en el que termina la función (si fue todo bien ST_OK)
+*/
+
+status_t proc_tim_tos(const char * sentencia, ubx_t * ubx){
+	if(!sentencia || !ubx){
 		/*IMPRIMIR LOG*/
 		return ST_ERR_PUNT_NULL;
 	}
 
 	/*carga la fecha*/
-	pvt->type.tim_tos.fecha. =
-	pvt->type.tim_tos.fecha. =
-	pvt->type.tim_tos.fecha. =
+	ubx->type.tim_tos.fecha. =
+	ubx->type.tim_tos.fecha. =
+	ubx->type.tim_tos.fecha. =
 	
 	/*carga la hora*/
-	pvt->type.tim_tos.hora. =
-	pvt->type.tim_tos.hora. =
-	pvt->type.tim_tos.hora. =
+	ubx->type.tim_tos.hora. =
+	ubx->type.tim_tos.hora. =
+	ubx->type.tim_tos.hora. =
 
 	return ST_OK;
 }
 
-proc_nav_posllh(const char * sentencia, nav_pvt_t * pvt){
-	if(!sentencia || !pvt){
+/**
+* @brief Cargar en una estructura los datos de UBX_NAV_POS a partir de un arreglo de bytes
+* @param sentencia: arreglo de bytes
+* @param ubx: puntero a ubx_t
+* @return status_t : el estado en el que termina la función (si fue todo bien ST_OK)
+*/
+
+status_t proc_nav_pos(const char * sentencia, ubx_t * ubx){
+	if(!sentencia || !ubx){
 		/*IMPRIMIR LOG*/
 		return ST_ERR_PUNT_NULL;
 	}
 
 
 }
+
+/**
+* @brief Deja apuntando al arreglo de bytes a partir de los bytes de sincronismo
+* @param sentencia: puntero a arreglo de bytes
+* @param eof: puntero a bool, que indicará si se llegó o no a EOF
+* @param fin: puntero al archivo de entrada
+* @return status_t : el estado en el que termina la función (si fue todo bien ST_OK)
+*/
 
 /*Si el archivo tiene una sentencia UBX la función la carga en el buffer y devuelve un puntero "sentencia" al principio de la misma (no incluye los caracteres de sincronismo). Cuando el archivo se termina y no se encontraron sentencias devuelve eof=true y sentencia=NULL*/
 status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin){
@@ -119,6 +156,14 @@ status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin){
 	*eof=true;
 	return ST_OK;
 }
+
+/**
+* @brief Deja apuntando al arreglo de bytes a partir de los bytes de sincronismo
+* @param sentencia: puntero a arreglo de bytes
+* @param eof: puntero a bool, que indicará si se llegó o no a EOF
+* @param fin: puntero al archivo de entrada
+* @return status_t : el estado en el que termina la función (si fue todo bien ST_OK)
+*/
 
 /*busca una sentencia UBX y la mueve al principio del buffer (no incluye los caracteres de sincronismo)*/
 bool get_sentence(uchar * buffer, bool * eof, FILE * fin){
