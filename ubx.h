@@ -19,31 +19,31 @@
 #define POS_LARGO 			2
 
 /*macros para procesar el payload PVT*/
-#define UBX_PVT_GNS_FIX_OK_MASK 
-#define UBX_PVT_GNS_FIX_OK_POS 21
-#define UBX_PVT_ELEVACION_POS 32
-#define UBX_PVT_ELEVACION_LEN 
-#define UBX_PVT_LATITUD_POS 28
-#define UBX_PVT_LATITUD_LEN 
-#define UBX_PVT_LONGITUD_POS 24
-#define UBX_PVT_LONGITUD_LEN 
-#define UBX_PVT_YEAR_POS 4
-#define UBX_PVT_YEAR_LEN 2
-#define UBX_PVT_MONTH_POS 6
-#define UBX_PVT_DAY_POS 7
-#define UBX_PVT_HH_POS 8
-#define UBX_PVT_MM_POS 9
-#define UBX_PVT_SS_POS 10
+#define UBX_PVT_GNS_FIX_OK_MASK	1
+#define UBX_PVT_GNS_FIX_OK_POS	21
+#define UBX_PVT_ELEVACION_POS	32
+#define UBX_PVT_ELEVACION_LEN	4
+#define UBX_PVT_LATITUD_POS 	28
+#define UBX_PVT_LATITUD_LEN 	4
+#define UBX_PVT_LONGITUD_POS 	24
+#define UBX_PVT_LONGITUD_LEN 	4
+#define UBX_PVT_YEAR_POS 		4
+#define UBX_PVT_YEAR_LEN 		2
+#define UBX_PVT_MONTH_POS 		6
+#define UBX_PVT_DAY_POS 		7
+#define UBX_PVT_HH_POS 			8
+#define UBX_PVT_MM_POS 			9
+#define UBX_PVT_SS_POS 			10
 
 
 /*macros para procesar el payload TIM_TOS*/
-#define UBX_TIM_TOS_YEAR_POS
-#define UBX_TIM_TOS_YEAR_LEN
-#define UBX_TIM_TOS_MONTH_POS
-#define UBX_TIM_TOS_DAY_POS
-#define UBX_TIM_TOS_HH_POS
-#define UBX_TIM_TOS_MM_POS
-#define UBX_TIM_TOS_SS_POS
+#define UBX_TIM_TOS_YEAR_POS 	8
+#define UBX_TIM_TOS_YEAR_LEN	2
+#define UBX_TIM_TOS_MONTH_POS	10
+#define UBX_TIM_TOS_DAY_POS		11
+#define UBX_TIM_TOS_HH_POS		12
+#define UBX_TIM_TOS_MM_POS		13
+#define UBX_TIM_TOS_SS_POS		14
 
 /*macros para procesar el payload NAV_POSLLH*/
 #define UBX_NAV_POSLLH_ELEVACION_POS 	12
@@ -96,10 +96,9 @@ typedef struct ubx{
 	}type;  
 }ubx_t;
 
-
+status_t proc_nav_posllh(const char * sentencia, ubx_t * pvt);
 status_t proc_tim_tos(const char * sentencia, ubx_t * pvt);
 status_t proc_nav_pvt(const char * sentencia, ubx_t * pvt);
-status_t proc_nav_pos(const char * sentencia, ubx_t * pvt);
 status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin);
 bool get_sentence(uchar * buffer, bool * eof, FILE * fin);
 void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin);
@@ -107,5 +106,4 @@ void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof)
 bool checksum(const uchar *buffer);
 ulong letol(const uchar * string, size_t pos, size_t len);
 double lotof(ulong entero);
-
 #endif
