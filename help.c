@@ -1,6 +1,17 @@
-#include "print_help.h"
+/**
+* @file help.c
+* @Author patovermal
+* @date 26/11/2019
+* @brief Impresion de la ayuda del programa
+*/
 
-void print_help (void) {
+#include "help.h"
+
+/**
+* @brief Imprime la ayuda del programa
+* @param void: no recibe parámetros
+* @return void : no devuelve nada
+*/
 
   fprintf(stdout , "%s\n\n", MSJ_AYUDA_INICIO);
   fprintf(stdout , "%s\n", SEPARADOR_);
