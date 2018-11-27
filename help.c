@@ -12,7 +12,7 @@
 * @param void: no recibe parámetros
 * @return void : no devuelve nada
 */
-
+void print_help (void) {
   fprintf(stdout , "%s\n\n", MSJ_AYUDA_INICIO);
   fprintf(stdout , "%s\n", SEPARADOR_);
   fprintf(stdout , "%s\n", SEPARADOR_);
