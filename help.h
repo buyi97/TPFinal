@@ -1,5 +1,9 @@
+#ifndef HELP__H
+#define HELP__H
+
 #include <stdio.h>
 #include <string.h>
+
 #define MAX_NOMBRE			50
 #define MAX_STR 			500
 #define MAX_CANTIDAD        100
@@ -84,3 +88,8 @@
 /* info del programa */
 #define MSJ_HORA_SIS "En caso de un error de lectura, se tomaran los datos del sistema"
 #define MSJ_MAX_CHAR "El largo máximo de la cadena a procesar es "
+
+/*Prototipos*/
+void print_help(void);
+
+#endif
