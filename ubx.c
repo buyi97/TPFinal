@@ -45,29 +45,29 @@ int main (void){
 * @return status_t : el estado en el que termina la función (si fue todo bien ST_OK)
 */
 
-status_t proc_nav_pvt(const char * sentencia, ubx_t * ubx){
-	if(!sentencia || !ubx){
+status_t proc_nav_pvt(const char * payload, ubx_t * ubx){
+	if(!payload || !ubx){
 		/*IMPRIMIR LOG*/
 		return ST_ERR_PUNT_NULL;
 	}
 
 	/*carga el estado del fix*/
-	ubx->type.pvt.gns_fix_ok =
+	ubx->type.pvt.gns_fix_ok = (payload[UBX_PVT_GNS_FIX_OK_POS] & UBX_PVT_GNS_FIX_OK_MASK)>>UBX_PVT_GNS_FIX_OK_SHIFT;
 
 	/*carga el posicionamiento*/
-	ubx->type.pvt.latitud = 
-	ubx->type.pvt.longitud =
-	ubx->type.pvt.elevacion = (int) letol(sentencia, PVT_ELEVACION_POS, len);
+	ubx->type.pvt.latitud = lotof(letol(payload,UBX_PVT_LATITUD_POS ,UBX_PVT_LATITUD_LEN));
+	ubx->type.pvt.longitud = lotof(letol(payload,UBX_PVT_LONGITUD_POS ,UBX_PVT_LONGITUD_LEN));
+	ubx->type.pvt.elevacion = (int) sletol(payload, UBX_PVT_ELEVACION_POS, UBX_PVT_ELEVACION_LEN);
 	
 	/*carga la fecha*/
-	ubx->type.pvt.fecha.year = (int) letol(sentencia, PVT_YEAR_POS, len);
-	ubx->type.pvt.fecha.month = (int) letol(sentencia, PVT_MONTH_POS, len);
-	ubx->type.pvt.fecha.day = (int) letol(sentencia, PVT_DAY_POS, len);
+	ubx->type.pvt.fecha.year = (int) letol(payload, UBX_PVT_YEAR_POS, UBX_PVT_YEAR_LEN);
+	ubx->type.pvt.fecha.month = (int) letol(payload, UBX_PVT_MONTH_POS, UBX_PVT_MONTH_LEN);
+	ubx->type.pvt.fecha.day = (int) letol(payload, UBX_PVT_DAY_POS, UBX_PVT_DAY_LEN);
 	
 	/*carga la hora*/
-	ubx->type.pvt.hora.hh = (int) letol(sentencia, PVT_HH_POS, len);
-	ubx->type.pvt.hora.mm = (int) letol(sentencia, PVT_MM_POS, len);
-	ubx->type.pvt.hora.ss =
+	ubx->type.pvt.hora.hh = (int) letol(payload, UBX_PVT_HH_POS, UBX_PVT_HH_LEN);
+	ubx->type.pvt.hora.mm = (int) letol(payload, UBX_PVT_MM_POS, UBX_PVT_MM_LEN);
+	ubx->type.pvt.hora.ss = (int) letol(payload, UBX_PVT_MSS_POS, UBX_PVT_SS_LEN);
 
 	return ST_OK;
 }
@@ -79,21 +79,21 @@ status_t proc_nav_pvt(const char * sentencia, ubx_t * ubx){
 * @return status_t : el estado en el que termina la función (si fue todo bien ST_OK)
 */
 
-status_t proc_tim_tos(const char * sentencia, ubx_t * ubx){
-	if(!sentencia || !ubx){
+status_t proc_tim_tos(const char * payload, ubx_t * ubx){
+	if(!payload || !ubx){
 		/*IMPRIMIR LOG*/
 		return ST_ERR_PUNT_NULL;
 	}
 
 	/*carga la fecha*/
-	ubx->type.tim_tos.fecha. =
-	ubx->type.tim_tos.fecha. =
-	ubx->type.tim_tos.fecha. =
+	ubx->type.tim_tos.fecha.year = (int) letol(payload, UBX_TIM_TOS_YEAR_POS, UBX_TIM_TOS_YEAR_LEN);
+	ubx->type.tim_tos.fecha.month = (int) letol(payload, UBX_TIM_TOS_MONTH_POS, UBX_TIM_TOS_MONTH_LEN);
+	ubx->type.tim_tos.fecha.day = (int) letol(payload, UBX_TIM_TOS_DAY_POS, UBX_TIM_TOS_DAY_LEN);
 	
 	/*carga la hora*/
-	ubx->type.tim_tos.hora. =
-	ubx->type.tim_tos.hora. =
-	ubx->type.tim_tos.hora. =
+	ubx->type.tim_tos.hora.hh = (int) letol(payload, UBX_TIM_TOS_HH_POS, UUBX_TIM_TOS_HH_LEN);
+	ubx->type.tim_tos.hora.mm = (int) letol(payload, UBX_TIM_TOS_MM_POS, UBX_TIM_TOS_MM_LEN); 
+	ubx->type.tim_tos.hora.ss = (int) letol(payload, UBX_TIM_TOS_SS_POS, UBX_TIM_TOS_SS_LEN);
 
 	return ST_OK;
 }
@@ -105,12 +105,13 @@ status_t proc_tim_tos(const char * sentencia, ubx_t * ubx){
 * @return status_t : el estado en el que termina la función (si fue todo bien ST_OK)
 */
 
-status_t proc_nav_pos(const char * sentencia, ubx_t * ubx){
-	if(!sentencia || !ubx){
+status_t proc_nav_pos(const char * payload, ubx_t * ubx){
+	if(!payload || !ubx){
 		/*IMPRIMIR LOG*/
 		return ST_ERR_PUNT_NULL;
 	}
 
+	
 
 }
 
@@ -249,15 +250,40 @@ bool checksum(const uchar *buffer){
 	}	
 }
 
-/*convierte de little-endian a entero*/
+/*convierte de little-endian a entero sin signo*/
 ulong letol(const uchar *string, size_t pos, size_t len){
 	ulong entero = 0;
-	int i;
+	int i,
+		valor_signo;
 
 	for(i = 0 ; i < len ; i++)
 		entero |= string[pos + i] << SHIFT_BYTE*i;
 
 	return entero;
+}
+
+/*convierte de little-endian a entero con signo*/
+long sletol(const uchar *string, size_t pos, size_t len){
+	long entero = 0,
+		 signo;
+	int i;
+		
+
+	/*lee el signo y asigna su valor a la variable signo*/
+	if(string[pos + len -1]>>7){ 
+			signo = -1;
+	}else{
+		signo = 1;
+	}
+
+	/*convierte de little-endian a long*/
+	for(i = 0 ; i < len-1 ; i++)
+		entero |= string[pos + i] << SHIFT_BYTE*i;
+
+	/*elimina el bit de signo y termina de convertir de little-endian a long*/
+	entero |= ((string[pos + len -1] & ~SLETOL_MASK_SIGNO)<< SHIFT_BYTE*(len -1));
+
+	return signo*entero;
 }
 
 /* convierte un decimal expresado en Estándar IEEE 754 a float */
@@ -270,7 +296,7 @@ double lotof(ulong entero){
 		   mantisa_double = 1;/*se inicializa con el bit implícito*/
 
 	/* lee el signo */
-	signo = (entero & MASK_SIGNO) >> SHIFT_SIGNO;
+	signo = (entero & LOTOF_MASK_SIGNO) >> SHIFT_SIGNO;
 	if(signo==1){
 		signo = -1;
 	}else{
@@ -293,3 +319,6 @@ double lotof(ulong entero){
 
 	return decimal;
 }
+
+
+
