@@ -38,6 +38,10 @@ status_t print_logs (log_t logs, FILE *flogs) {
         case ERR_INV_NMEA:
             fprintf(flogs, "%s: %s\n", MSJ_ERR_PREFIJO, MSJ_ERR_INV_NMEA);
             break;
+		    
+	case ERR_PTR_NULL:
+            fprintf(flogs, "%s: %s\n", MSJ_ERR_PREFIJO, MSJ_ERR_PTR_NULL);
+            break;
         /* Warnings (WARN) */
         case WARN_ID_DESC:
             fprintf(flogs, "%s: %s\n", MSJ_WARN_PREFIJO, MSJ_WARN_ID_DESC);
@@ -66,6 +70,10 @@ status_t print_logs (log_t logs, FILE *flogs) {
 
         case DB_MSJ_UP:
             fprintf(flogs, "%s: %s\n", MSJ_DEBUG_PREFIJO, MSJ_DB_MSJ_UP);
+            break;
+		    
+	case DB_MSJ_UP:
+            fprintf(flogs, "%s: %s\n", MSJ_DEBUG_PREFIJO, MSJ_DB_MSJ_PRINT);
             break;
     }
     return ST_OK;
