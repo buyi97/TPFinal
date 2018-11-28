@@ -9,7 +9,10 @@
 #include "logs.h"
 
 void print_logs (log_t logs, FILE *flogs) {
-
+    
+    if (!flogs)
+        return ST_ERR_PUNT_NULL;
+    
     switch(logs) {
 
         /* Errores (ERR) */
