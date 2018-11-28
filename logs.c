@@ -8,7 +8,7 @@
 
 #include "logs.h"
 
-void print_logs (log_t logs, FILE *flogs) {
+status_t print_logs (log_t logs, FILE *flogs) {
     
     if (!flogs)
         return ST_ERR_PUNT_NULL;
@@ -60,4 +60,5 @@ void print_logs (log_t logs, FILE *flogs) {
             fprintf(flogs, "%s\n", MSJ_DB_MSJ_UP);
             break;
     }
+    return ST_OK;
 }
