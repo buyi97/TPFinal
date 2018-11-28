@@ -8,9 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <math.h>
 #include "status.h"
 #include "ubx.h"
+#include "bits.h"
 
 int main (void){
 	uchar *sentencia;
@@ -30,14 +30,41 @@ int main (void){
 		}
 	}
 
-	uchar byte[4] = {0xf5, 0xf4, 0xf7, 0xf1};
 	printf("se leyeron %d setencias UBX.\n", i);
-	printf("%ld\n", sletol(byte, 0, 4));
+	printf("%d\n", NAV_PVT);
  
 	fclose(fin);
 	fclose(fout);
 
 	return EXIT_SUCCESS;
+}
+
+status_t proc_ubx(uchar * sentencia, ubx_t * ubx){
+	proc_ubx_t funcion[] = {&proc_nav_pvt, &proc_tim_tos, &proc_nav_posllh};
+
+	if ( !sentencia || !ubx )
+		return ST_ERR_PUNT_NULL;
+
+	/*lee el id*/
+	switch(letol(sentencia, ID_POS, ID_LEN)){
+		case UBX_NAV_PVT_ID:
+			ubx->id = NAV_PVT;
+			break;
+
+		case UBX_TIM_TOS_ID:
+			ubx->id = TIM_TOS;
+			break;
+
+		case UBX_NAV_POSLLH_ID:
+			ubx->id = NAV_POSLLH;
+			break;
+
+		default:	
+			/*PRINT LOG*/
+			return ST_ERR_ID_INVALIDO;
+	}
+
+	return funcion[ubx->id](sentencia, ubx);
 }
 
 /**
@@ -256,75 +283,4 @@ bool checksum(const uchar *buffer){
 	}	
 }
 
-/*convierte de little-endian a entero sin signo*/
-ulong letol(const uchar *string, size_t pos, size_t len){
-	ulong entero = 0;
-	int i;
 
-	for(i = 0 ; i < len ; i++)
-		entero |= string[pos + i] << SHIFT_BYTE*i;
-
-	return entero;
-}
-
-/*convierte de little-endian a entero con signo*/
-long sletol(const uchar *string, size_t pos, size_t len){
-	long entero = 0,
-		 signo;
-	int i;
-		
-
-	/*lee el signo y asigna su valor a la variable signo*/
-	if(string[pos + len -1]>>7){ 
-			signo = -1;
-	}else{
-		signo = 1;
-	}
-
-	/*convierte de little-endian a long*/
-	for(i = 0 ; i < len-1 ; i++)
-		entero |= string[pos + i] << SHIFT_BYTE*i;
-
-	/*elimina el bit de signo y termina de convertir de little-endian a long*/
-	entero |= ((string[pos + len -1] & ~SLETOL_MASK_SIGNO)<< SHIFT_BYTE*(len -1));
-
-	return signo*entero;
-}
-
-/* convierte un decimal expresado en Estándar IEEE 754 a float */
-double lotof(ulong entero){
-	int i,
-		signo = 0,
-		exponente = 0,
-		mantisa_int = 0; 
-	double decimal,
-		   mantisa_double = 1;/*se inicializa con el bit implícito*/
-
-	/* lee el signo */
-	signo = (entero & LOTOF_MASK_SIGNO) >> SHIFT_SIGNO;
-	if(signo==1){
-		signo = -1;
-	}else{
-		signo = 1;
-	}
-
-	/*lee el exponente*/
-	exponente = (entero & MASK_EXPONENTE) >> SHIFT_EXPONENTE;
-	exponente -= 127;
-
-	/*lee la mantisa*/
-	mantisa_int = entero & MASK_MANTISA;
-	for(i = 0 ; i < 23 ; i++){
-		if((mantisa_int>>(22-i))&1)
-			mantisa_double += ldexp(1, -i - 1);
-	}
-	
-	/*calcula el valor en punto flotante */
-	decimal = signo * ldexp(mantisa_double, exponente);
-
-	return decimal;
-}
-
-
-
- 
