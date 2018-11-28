@@ -7,8 +7,9 @@
 
 #define SYNC_CHAR1 			0xB5
 #define SYNC_CHAR2 			0X62
-#define MASK_SIGNO 			0x80000000
+#define LOTOF_MASK_SIGNO	0x80000000
 #define SHIFT_SIGNO			31
+#define SLETOL_MASK_SIGNO	0X80
 #define MASK_EXPONENTE 		0x7f800000
 #define SHIFT_EXPONENTE		23
 #define MASK_MANTISA 		0x007fffff
@@ -21,6 +22,7 @@
 /*macros para procesar el payload PVT*/
 #define UBX_PVT_GNS_FIX_OK_MASK	1
 #define UBX_PVT_GNS_FIX_OK_POS	21
+#define UBX_PVT_GNS_FIX_OK_SHIFT 0
 #define UBX_PVT_ELEVACION_POS	32
 #define UBX_PVT_ELEVACION_LEN	4
 #define UBX_PVT_LATITUD_POS 	28
@@ -84,21 +86,21 @@ typedef struct tim_tos{
 typedef struct nav_posllh{
 	double latitud;
 	double longitud;
-	float altura;
+	double elevacion;
 }nav_posllh_t;
 
 typedef struct ubx{
 	ubx_id	id;
 	union type {
-   		nav_pvt_t nav_pvt;
-   		nav_posllh_t nav_posllh;
+   		nav_pvt_t pvt;
+   		nav_posllh_t posllh;
    		tim_tos_t tim_tos;
 	}type;  
 }ubx_t;
 
-status_t proc_nav_posllh(const char * sentencia, ubx_t * pvt);
-status_t proc_tim_tos(const char * sentencia, ubx_t * pvt);
-status_t proc_nav_pvt(const char * sentencia, ubx_t * pvt);
+status_t proc_nav_posllh(const char * payload, ubx_t * pvt);
+status_t proc_tim_tos(const char * payload, ubx_t * pvt);
+status_t proc_nav_pvt(const char * payload, ubx_t * pvt);
 status_t readline_ubx(uchar ** sentencia, bool * eof, FILE * fin);
 bool get_sentence(uchar * buffer, bool * eof, FILE * fin);
 void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin);
@@ -106,4 +108,6 @@ void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof)
 bool checksum(const uchar *buffer);
 ulong letol(const uchar * string, size_t pos, size_t len);
 double lotof(ulong entero);
+long sletol(const uchar *string, size_t pos, size_t len);
+
 #endif
