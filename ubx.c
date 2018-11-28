@@ -30,7 +30,9 @@ int main (void){
 		}
 	}
 
+	uchar byte[4] = {0xf5, 0xf4, 0xf7, 0xf1};
 	printf("se leyeron %d setencias UBX.\n", i);
+	printf("%ld\n", sletol(byte, 0, 4));
  
 	fclose(fin);
 	fclose(fout);
@@ -45,7 +47,7 @@ int main (void){
 * @return status_t : el estado en el que termina la función (si fue todo bien ST_OK)
 */
 
-status_t proc_nav_pvt(const char * payload, ubx_t * ubx){
+status_t proc_nav_pvt(const uchar * payload, ubx_t * ubx){
 	if(!payload || !ubx){
 		/*IMPRIMIR LOG*/
 		return ST_ERR_PUNT_NULL;
@@ -67,7 +69,7 @@ status_t proc_nav_pvt(const char * payload, ubx_t * ubx){
 	/*carga la hora*/
 	ubx->type.pvt.hora.hh = (int) letol(payload, UBX_PVT_HH_POS, UBX_PVT_HH_LEN);
 	ubx->type.pvt.hora.mm = (int) letol(payload, UBX_PVT_MM_POS, UBX_PVT_MM_LEN);
-	ubx->type.pvt.hora.ss = (int) letol(payload, UBX_PVT_MSS_POS, UBX_PVT_SS_LEN);
+	ubx->type.pvt.hora.ss = (int) letol(payload, UBX_PVT_SS_POS, UBX_PVT_SS_LEN);
 
 	return ST_OK;
 }
@@ -79,7 +81,7 @@ status_t proc_nav_pvt(const char * payload, ubx_t * ubx){
 * @return status_t : el estado en el que termina la función (si fue todo bien ST_OK)
 */
 
-status_t proc_tim_tos(const char * payload, ubx_t * ubx){
+status_t proc_tim_tos(const uchar * payload, ubx_t * ubx){
 	if(!payload || !ubx){
 		/*IMPRIMIR LOG*/
 		return ST_ERR_PUNT_NULL;
@@ -91,7 +93,7 @@ status_t proc_tim_tos(const char * payload, ubx_t * ubx){
 	ubx->type.tim_tos.fecha.day = (int) letol(payload, UBX_TIM_TOS_DAY_POS, UBX_TIM_TOS_DAY_LEN);
 	
 	/*carga la hora*/
-	ubx->type.tim_tos.hora.hh = (int) letol(payload, UBX_TIM_TOS_HH_POS, UUBX_TIM_TOS_HH_LEN);
+	ubx->type.tim_tos.hora.hh = (int) letol(payload, UBX_TIM_TOS_HH_POS, UBX_TIM_TOS_HH_LEN);
 	ubx->type.tim_tos.hora.mm = (int) letol(payload, UBX_TIM_TOS_MM_POS, UBX_TIM_TOS_MM_LEN); 
 	ubx->type.tim_tos.hora.ss = (int) letol(payload, UBX_TIM_TOS_SS_POS, UBX_TIM_TOS_SS_LEN);
 
@@ -105,7 +107,7 @@ status_t proc_tim_tos(const char * payload, ubx_t * ubx){
 * @return status_t : el estado en el que termina la función (si fue todo bien ST_OK)
 */
 
-status_t proc_nav_posllh(const char * payload, ubx_t * ubx){
+status_t proc_nav_posllh(const uchar * payload, ubx_t * ubx){
 	if(!payload || !ubx){
 		/*IMPRIMIR LOG*/
 		return ST_ERR_PUNT_NULL;
@@ -257,8 +259,7 @@ bool checksum(const uchar *buffer){
 /*convierte de little-endian a entero sin signo*/
 ulong letol(const uchar *string, size_t pos, size_t len){
 	ulong entero = 0;
-	int i,
-		valor_signo;
+	int i;
 
 	for(i = 0 ; i < len ; i++)
 		entero |= string[pos + i] << SHIFT_BYTE*i;
@@ -326,3 +327,4 @@ double lotof(ulong entero){
 
 
 
+ 
