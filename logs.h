@@ -1,7 +1,24 @@
+/**
+* @file logs.h
+* @author pulpo
+* @date 24/11/2018
+* @brief La funcion recibe el log y un puntero a file e imprime
+* el mensaje correspondiente en el archivo indicado.
+*/
+
 #ifndef LOGS__H
 #define LOGS__H
 
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include <stdio.h>
+#include "../status/status.h"
+
+/* prefijos */
+#define MSJ_ERR_PREFIJO "ERR"
+#define MSJ_WARN_PREFIJO "WARN"
+#define MSJ_DEBUG_PREFIJO "DEBUG"
 
 /* error */
 #define MSJ_ERR_OPEN_FILE "No se pudo abrir el archivo"
@@ -28,6 +45,6 @@ typedef enum log_t {
 } log_t;
 
 /* prototipos  */
-void print_logs (log_t logs, FILE *flogs);
+status_t print_logs (log_t logs, FILE *flogs);
 
 #endif
