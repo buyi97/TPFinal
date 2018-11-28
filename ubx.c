@@ -112,9 +112,9 @@ status_t proc_nav_posllh(const char * payload, ubx_t * ubx){
 	}
 
 	/*carga el posicionamiento*/
-	ubx->type.pvt.latitud = lotof(letol(payload, UBX_NAV_POSLLH_LATITUD_POS ,UBX_NAV_POSLLH_LATITUD_LEN));
-	ubx->type.pvt.longitud = lotof(letol(payload, UBX_NAV_POSLLH_LONGITUD_POS ,UBX_NAV_POSLLH_LONGITUD_LEN));
-	ubx->type.pvt.elevacion = (int) sletol(payload, UBX_NAV_POSLLH_ELEVACION_POS, UBX_NAV_POSLLH_ELEVACION_LEN);
+	ubx->type.posllh.latitud = lotof(letol(payload, UBX_NAV_POSLLH_LATITUD_POS ,UBX_NAV_POSLLH_LATITUD_LEN));
+	ubx->type.posllh.longitud = lotof(letol(payload, UBX_NAV_POSLLH_LONGITUD_POS ,UBX_NAV_POSLLH_LONGITUD_LEN));
+	ubx->type.posllh.elevacion = (int) sletol(payload, UBX_NAV_POSLLH_ELEVACION_POS, UBX_NAV_POSLLH_ELEVACION_LEN);
 
 	return ST_OK;
 }
