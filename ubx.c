@@ -105,14 +105,18 @@ status_t proc_tim_tos(const char * payload, ubx_t * ubx){
 * @return status_t : el estado en el que termina la función (si fue todo bien ST_OK)
 */
 
-status_t proc_nav_pos(const char * payload, ubx_t * ubx){
+status_t proc_nav_posllh(const char * payload, ubx_t * ubx){
 	if(!payload || !ubx){
 		/*IMPRIMIR LOG*/
 		return ST_ERR_PUNT_NULL;
 	}
 
-	
+	/*carga el posicionamiento*/
+	ubx->type.pvt.latitud = lotof(letol(payload, UBX_NAV_POSLLH_LATITUD_POS ,UBX_NAV_POSLLH_LATITUD_LEN));
+	ubx->type.pvt.longitud = lotof(letol(payload, UBX_NAV_POSLLH_LONGITUD_POS ,UBX_NAV_POSLLH_LONGITUD_LEN));
+	ubx->type.pvt.elevacion = (int) sletol(payload, UBX_NAV_POSLLH_ELEVACION_POS, UBX_NAV_POSLLH_ELEVACION_LEN);
 
+	return ST_OK;
 }
 
 /**
