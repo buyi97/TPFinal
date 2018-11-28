@@ -1,23 +1,22 @@
- #ifndef UBX__H
+#ifndef UBX__H
 #define UBX__H
 #include "fecha.h"
 
-/*tamaño del buffer*/
 #define BUFFER_LEN 120 /*La longitúd del buffer debe ser mayor a la máxima longitud posible para una sentencia UBX*/
 
+/*valores fijos de sentencias UBX*/
 #define SYNC_CHAR1 			0xB5
 #define SYNC_CHAR2 			0X62
-#define LOTOF_MASK_SIGNO	0x80000000
-#define SHIFT_SIGNO			31
-#define SLETOL_MASK_SIGNO	0X80
-#define MASK_EXPONENTE 		0x7f800000
-#define SHIFT_EXPONENTE		23
-#define MASK_MANTISA 		0x007fffff
-#define MASK_BIT_IMPLICITO	0x80000000
-#define SHIFT_BYTE 			8
+#define ID_POS				0
+#define ID_LEN 				2
+#define POS_LARGO 			2
 #define LEN_LARGO 			2 
 #define POS_PAYLOAD 		4 
-#define POS_LARGO 			2
+
+/*identificador de mensaje*/
+#define UBX_NAV_PVT_ID 			0x0701 /*little-endian*/
+#define UBX_TIM_TOS_ID			0X120d /*little-endian*/
+#define UBX_NAV_POSLLH_ID 		0X0201 /*little-endian*/
 
 /*macros para procesar el payload PVT*/
 #define UBX_PVT_GNS_FIX_OK_MASK	1
@@ -64,6 +63,7 @@
 #define UBX_NAV_POSLLH_LONGITUD_POS 	4
 #define UBX_NAV_POSLLH_LONGITUD_LEN 	4
 
+#define UBX_CANT_TIPOS 		3
 
 typedef unsigned char uchar; 
 typedef unsigned long ulong; 
@@ -72,7 +72,7 @@ typedef unsigned long ulong;
 typedef enum ubx_id{
 	NAV_PVT,
 	TIM_TOS,
-	NAV_POSLLH,
+	NAV_POSLLH
 }ubx_id;
 
 /*Estructura para nav_pvt, con los datos a guardar*/
@@ -107,6 +107,9 @@ typedef struct ubx{
 	}type;  
 }ubx_t;
 
+typedef status_t (*proc_ubx_t)(const uchar *, ubx_t *);
+
+
 status_t proc_nav_posllh(const uchar * payload, ubx_t * pvt);
 status_t proc_tim_tos(const uchar * payload, ubx_t * pvt);
 status_t proc_nav_pvt(const uchar * payload, ubx_t * pvt);
@@ -115,8 +118,7 @@ bool get_sentence(uchar * buffer, bool * eof, FILE * fin);
 void load_buffer(uchar * buffer, size_t pos, bool * eof, FILE * fin);
 void fread_grind(void *ptr, size_t size, size_t nmemb, FILE *stream, bool * eof);
 bool checksum(const uchar *buffer);
-ulong letol(const uchar * string, size_t pos, size_t len);
-double lotof(ulong entero);
-long sletol(const uchar *string, size_t pos, size_t len);
+
+
 
 #endif
