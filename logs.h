@@ -1,3 +1,6 @@
+#ifndef LOGS__H
+#define LOGS__H
+
 #include <stdio.h>
 
 /* error */
@@ -23,3 +26,8 @@ typedef enum log_t {
     ERR_INV_NMEA, WARN_ID_DESC, WARN_FIX_INV, WARN_FULL_LIST,
     DB_BYTES_SYNC, DB_ID_DETECT, DB_MSJ_DET, DB_MSJ_UP
 } log_t;
+
+/* prototipos  */
+void print_logs (log_t logs, FILE *flogs);
+
+#endif
